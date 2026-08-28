@@ -57,7 +57,15 @@ three times is a screen where those three things matter.
 | Ink muted | `#8a8880` | `#74736c` |
 
 Warm neutrals, not blue-grey. One elevation level: hairline borders, **no shadows, no
-glass, no gradients**.
+glass**.
+
+**One atmospheric device is permitted: a tonal ground.** A single-hue, very-low-chroma
+vertical gradient on the page background — never on cards, never behind data. Resolved
+from reference review 2026-08 (§13): the distinction that matters is **material versus
+lighting**. Lighting — glass, blur, glow, photographic grounds — requires something to
+light, and that something becomes decoration; it also destroys the contrast guarantee,
+because text over a photograph has variable legibility by definition. A tonal field is
+material: it gives depth without introducing objects that float.
 
 ### Semantic colour — validated, not chosen by taste
 
@@ -100,6 +108,29 @@ hairline colour — visibly *not a scenario*, which is the honest representation
 
 Never encodes uncertainty. Never encodes magnitude. Never distinguishes navigation.
 Never brands a section. Never escalates because there is more news.
+
+## 3b. Measured versus not measured — the stroke rule
+
+Adopted from reference review 2026-08. A single graphical convention, applied everywhere a
+line is drawn:
+
+| Stroke | Means |
+| --- | --- |
+| **Solid** | Measured, calculated, or observed |
+| **Dotted** | Projected, unverified, inferred, or absent from the record |
+
+It applies to sparklines (measured history solid, projection dotted), to causal-chain
+connectors (an `UNVERIFIED` link dots its connector), and to any trend mark. It costs
+nothing, works in greyscale, and carries the same epistemic distinction the typography
+carries — so `EvidenceClassTag` gains a graphical partner rather than standing alone.
+
+Two companions from the same source:
+
+- **Annotate the delta, not the value.** A change is labelled on the mark itself
+  (`Δ +1 from 0`), because Atlas is a delta product and the change is the subject.
+- **Show the method quietly.** `probability_method`, a formula version, a scale — set small
+  and muted at the edge of the block it governs. Provenance as texture rather than as a
+  disclosure the owner must go looking for.
 
 ## 4. Certainty as weight
 
@@ -195,4 +226,38 @@ inherits its background from the host.
 | D5 | Colour appears at most three times per viewport in a normal state |
 | D6 | Dark mode is separately validated, not an inversion |
 | D7 | All motion is removable via `prefers-reduced-motion` with no loss of information |
-| D8 | No shadow, gradient, glass or decorative illustration ships |
+| D8 | No shadow, glass, photographic ground or decorative illustration ships. The only gradient is the tonal page ground |
+| D9 | Every line mark distinguishes measured (solid) from not-measured (dotted) |
+
+
+---
+
+## 13. Reference review — 2026-08
+
+Four references scored against `VISUAL_REFERENCE_PROTOCOL.md`. Recorded because a design
+system's value is in the choices it closed.
+
+| Reference | Daily-use test | Verdict |
+| --- | --- | --- |
+| Property app — glass cards on a blurred architectural render, acid-green accent, memoji | **Fails.** A photographic ground delights on day 1 and obstructs on day 200; contrast over a photo is variable by definition | Rejected wholesale |
+| Accounting app — frosted glass on a dusk landscape, radial gauges, large display numerals | **Fails** for the same reason. Radial gauges additionally imply a proportion of something, which most Atlas quantities are not | Rejected; **numeral confidence adopted** |
+| Monitoring dashboard — near-black, glowing point-cloud map, status chips, dense small multiples | **Fails.** Designed for continuous anomaly-watching; Atlas is read for 30 seconds once a day. The density that makes it good makes Atlas bad | Rejected; the most seductive of the four, and the trap |
+| Signal card — deep single-hue tonal field, one curve with dotted continuation, Δ annotation, formula at the edge | **Passes** | **Four mechanisms adopted** — §3b and the tonal ground |
+
+### What the first three were actually communicating
+
+Depth, numeral confidence, and evident craft. Those qualities are real and Atlas was
+missing them. The mechanisms used to achieve them — glass, glow, photographic grounds,
+neon — are not the only way to get them, and are the way that fails on day 200. The
+adopted alternatives deliver the same three qualities using material rather than lighting.
+
+### Questions resolved
+
+| Question | Resolution |
+| --- | --- |
+| Q2 — how dark, and how much surface separation without shadow | Tonal ground plus hairline; raised surfaces separate by one step and a border, never by shadow |
+| Q6 — how to show uncertainty graphically | The stroke rule (§3b): solid is measured, dotted is not |
+| Q3 — how a dense screen stays calm | Not by borrowing monitoring-dashboard density. Row rhythm and a strict colour budget; revisit when State is built against real data |
+
+Q1, Q4, Q5, Q7 and Q8 remain open. **Q8 — quiet rather than empty — was answered by none
+of the four**, exactly as the protocol predicted: nobody publishes a quiet day.
