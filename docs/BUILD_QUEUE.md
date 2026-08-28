@@ -17,8 +17,8 @@ Do not silently change the architecture.
 | # | Item | Status |
 | --- | --- | --- |
 | 00 | Repository and architecture freeze | **Done** |
-| 01 | Domain types + persistence foundation | Next |
-| 02 | Source adapter contract | Pending |
+| 01 | Domain types + persistence foundation | **Done** |
+| 02 | Source adapter contract | Next |
 | 03 | Event normalization and dedupe | Pending |
 | 04 | OpenBB market adapter | Pending |
 | 05 | Narrative Engine | Pending |
@@ -68,7 +68,7 @@ Those prerequisites are now met: production uses **Neon PostgreSQL 16 in AWS Fra
 (`eu-central-1`)**; development and tests use local Docker PostgreSQL 16. This is an
 operational provider choice, not a Neon dependency in the domain.
 
-## Queue 01 — Domain types + persistence foundation (next)
+## Queue 01 — Domain types + persistence foundation ✅
 
 Implement only:
 
@@ -83,7 +83,11 @@ Do **not** implement empty future tables or engines: World/Personal State, Portf
 Impact, Scenario, Policy, Decision, semantic memory, MCP, UI or execution. Their vocabulary
 may be documented in `DATA_MODEL.md`; their persistence lands with their queue item.
 
-**Acceptance:**
+**Delivered:** framework-neutral Queue 01 entities and tier contracts; SQLAlchemy models
+and repositories; the initial Alembic revision; append-only forecast prediction enforcement;
+local/CI PostgreSQL 16 infrastructure; temporal authority and provenance queries.
+
+**Acceptance met:**
 
 - migrations apply from zero and the supported downgrade/upgrade path is clean;
 - tests run against PostgreSQL 16 — no SQLite fallback;

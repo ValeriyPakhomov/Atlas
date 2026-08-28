@@ -5,3 +5,35 @@ with no network access and must not import web frameworks, ORMs, HTTP clients, L
 SDKs, agent frameworks, or data-provider SDKs. ``tests/unit/test_architecture_boundaries.py``
 enforces this mechanically.
 """
+
+from atlas.domain.entities import (
+    AuthoredBy,
+    Event,
+    Evidence,
+    ForecastPrediction,
+    ForecastQuestion,
+    ForecastResolution,
+    Narrative,
+    Objective,
+    Preference,
+    RawItem,
+    RunRecord,
+    Source,
+)
+from atlas.domain.sensitivity import SensitivityTier
+
+__all__ = [
+    "AuthoredBy",
+    "Event",
+    "Evidence",
+    "ForecastPrediction",
+    "ForecastQuestion",
+    "ForecastResolution",
+    "Narrative",
+    "Objective",
+    "Preference",
+    "RawItem",
+    "RunRecord",
+    "SensitivityTier",
+    "Source",
+]

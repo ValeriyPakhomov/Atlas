@@ -537,7 +537,7 @@ usefulness rate is not, the correct response is to **remove**, not to add.
 
 ## 17. What to do next
 
-1. Build Queue 01 against PostgreSQL 16 using the exact scope in `BUILD_QUEUE.md`.
+1. Build Queue 02's source-adapter contract without widening the persistence schema.
 2. Resolve later proposed ADRs only before the queue item each one gates.
 3. Build Queue 02–14 as a single vertical slice. Resist every temptation to widen it.
 4. Start the daily marking habit **the day the first brief exists**, not later. The

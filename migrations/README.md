@@ -1,7 +1,7 @@
 # Migrations
 
-Alembic migrations against PostgreSQL 16 + pgvector. The first revision lands with
-**Queue 01** (domain types and persistence foundation).
+Alembic migrations against PostgreSQL 16 + pgvector. Revision `0caec4550b85` is the
+**Queue 01** domain and persistence foundation.
 
 Rules:
 

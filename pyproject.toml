@@ -9,10 +9,13 @@ description = "Atlas — persistent, evidence-backed personal intelligence syste
 requires-python = ">=3.12"
 license = { text = "UNLICENSED" }
 dependencies = [
+  "alembic>=1.14",
   "fastapi>=0.115",
+  "psycopg[binary]>=3.2",
   "uvicorn[standard]>=0.32",
   "pydantic>=2.9",
   "pydantic-settings>=2.6",
+  "sqlalchemy>=2.0.36",
 ]
 
 [project.optional-dependencies]
@@ -58,6 +61,7 @@ disallow_untyped_defs = false
 testpaths = ["tests"]
 addopts = "-q --strict-markers"
 markers = [
+  "integration: PostgreSQL-backed persistence and migration tests",
   "replay: historical replay determinism tests",
   "golden: golden-fixture research tests",
   "evals: model-quality evaluations (not run in default CI)",

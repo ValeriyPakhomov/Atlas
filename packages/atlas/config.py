@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     base_currency: str = "USD"
 
     database_url: str = "postgresql+psycopg://atlas:atlas@localhost:5432/atlas"
+    database_direct_url: str | None = None
+    test_database_url: str = "postgresql+psycopg://atlas:atlas@localhost:5433/atlas_test"
 
     # ADR-0003: Atlas V1 is read-only with respect to money, brokers, wallets and
     # external systems. There is no configuration path that enables execution; the
