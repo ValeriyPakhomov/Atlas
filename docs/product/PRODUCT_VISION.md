@@ -149,4 +149,5 @@ web product (`docs/PROGRAM.md` phases).
 | [UX_DATA_CONTRACTS.md](UX_DATA_CONTRACTS.md) | What the frontend needs from the API |
 | [SYNTHETIC_DESIGN_DATA.md](SYNTHETIC_DESIGN_DATA.md) | One coherent day to design against |
 | [UX_ROADMAP.md](UX_ROADMAP.md) | What to design now, and what must wait |
+| [ATLAS_SCORE.md](ATLAS_SCORE.md) | The dashboard score and news relevance, and why they are safe |
 | [VISUAL_REFERENCE_PROTOCOL.md](VISUAL_REFERENCE_PROTOCOL.md) | How references are used without diluting the direction |

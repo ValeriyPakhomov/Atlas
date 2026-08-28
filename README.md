@@ -68,6 +68,7 @@ alone** and imports the domain package.
 | [WORLD_STATE.md](docs/WORLD_STATE.md) · [PERSONAL_STATE.md](docs/PERSONAL_STATE.md) · [IMPACT_ENGINE.md](docs/IMPACT_ENGINE.md) · [SCENARIO_ENGINE.md](docs/SCENARIO_ENGINE.md) · [DECISION_JOURNAL.md](docs/DECISION_JOURNAL.md) | Engine contracts |
 | [SECURITY.md](docs/SECURITY.md) | Prohibitions, credentials, data handling |
 | [DATA_TIERS.md](docs/DATA_TIERS.md) | Sensitivity tiers L0–L3 and which model may see what |
+| [MODEL_ROUTING.md](docs/MODEL_ROUTING.md) | Which model serves which workload, and the cost levers |
 | [EVALS.md](docs/EVALS.md) | Test suites and model evaluations |
 | [CLAUDE.md](CLAUDE.md) · [AGENTS.md](AGENTS.md) | Coding-agent execution contract |
 
