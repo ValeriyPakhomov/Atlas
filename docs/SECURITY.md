@@ -82,7 +82,11 @@ item should surface as low verification status, not as a state change.
 
 ## Service controls
 
-- No public admin endpoints. API docs are exposed only in `local` and `ci`.
+- No public admin endpoints. API docs are exposed only in `local` and `ci`, and this
+  holds **by construction**: `Settings.environment` defaults to `production`, so an
+  unconfigured or blank deployment closes the docs rather than opening them. A blank
+  environment variable is treated as unset (`env_ignore_empty`), because hosting
+  platforms materialise declared-but-unset variables as empty strings.
 - Rate limiting on the API surface.
 - CSRF and session protections for the dashboard.
 - Dependency scanning and secret scanning in CI.

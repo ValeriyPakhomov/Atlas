@@ -33,6 +33,9 @@ jobs:
           --health-timeout 5s
           --health-retries 20
     env:
+      # Declared explicitly: the Settings default is deliberately the most
+      # restrictive value, so every deployed and automated context names its own.
+      ATLAS_ENVIRONMENT: ci
       ATLAS_TEST_DATABASE_URL: postgresql+psycopg://atlas:atlas@localhost:5432/atlas_test
     steps:
       - uses: actions/checkout@v4
