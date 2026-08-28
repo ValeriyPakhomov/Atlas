@@ -185,6 +185,26 @@ TypeScript for the dashboard, Docker, GitHub Actions, OpenTelemetry-compatible
 telemetry. No Kubernetes, Kafka or microservices in V1. New database or queue
 technology requires an ADR.
 
+## 9b. Build / Borrow / Adapt
+
+**Build** — Atlas-specific intelligence, and only this: event model, World State, Personal
+State, portfolio and risk math, Impact Engine, Scenario Engine, Policy Engine, Decision
+Journal, outcome and calibration, goals and constraints, the opportunity view, and
+counterfactual reasoning where justified.
+
+**Borrow or adapt** — commodity infrastructure and patterns: financial data through
+OpenBB and direct providers; orchestration patterns from TradingAgents; deterministic
+finance patterns from FinRobot; run-cycle and risk concepts from AI Hedge Fund; quant
+tooling from Qlib; research-loop patterns; an optional semantic-memory framework; generic
+workspace, MCP and local-model concepts from Odysseus.
+
+**Never fork wholesale** — OpenBB, TradingAgents, FinRobot, AI Hedge Fund, Odysseus, or
+any generic agent workspace (ADR-0005, ADR-0012).
+
+The test for any new capability: *is this Atlas-specific intelligence, or is it
+infrastructure someone else already maintains?* Build the first; reach the second across a
+boundary.
+
 ## 10. Deviations from Blueprint v1
 
 Recorded rather than silently applied.
@@ -206,3 +226,6 @@ Recorded rather than silently applied.
 4. The engine document for the area you are touching.
 5. `docs/SECURITY.md` and `docs/DATA_TIERS.md` before any credential, provider or
    personal-data work.
+6. `docs/reviews/` for the reasoning behind decisions that are not obvious from the ADRs
+   alone — in particular the [2026-08 cognitive-expansion review](reviews/2026-08-cognitive-expansion.md),
+   which records what was **rejected** and why.

@@ -27,9 +27,14 @@ that may change it.**
 | [0008](0008-impact-priority-and-attention.md) | Impact priority is a weighted geometric composite; attention is separate | **Proposed** |
 | [0009](0009-probability-integrity.md) | Probability integrity: incompleteness explicit, precision honest | **Proposed** |
 | [0010](0010-data-tiers-and-model-routing.md) | Data sensitivity tiers govern model routing | **Proposed** |
+| [0011](0011-goals-are-owner-authored-state.md) | Goals, preferences and constraints are owner-authored canonical state | **Proposed** |
+| [0012](0012-external-workspaces-are-replaceable.md) | External workspaces are replaceable surfaces | **Proposed** |
+| [0013](0013-autonomy-ladder-and-execution-gateway.md) | Autonomy ladder and the Execution Gateway boundary (extends ADR-0003) | **Proposed** |
+| [0014](0014-auditable-self-improvement.md) | Self-improvement is proposed, validated, approved and versioned | **Proposed** |
 
-ADRs 0006–0010 resolve contradictions found in Blueprint v1 and are **awaiting owner
-acceptance**. Each blocks a specific queue item — see the table in `../BUILD_QUEUE.md`.
+ADRs 0006–0010 resolve contradictions found in Blueprint v1; ADRs 0011–0014 come from
+[the 2026-08 cognitive-expansion review](../reviews/2026-08-cognitive-expansion.md). All
+are **awaiting owner acceptance**. Each blocks a specific queue item — see the table in `../BUILD_QUEUE.md`.
 They are written as decisions rather than options because the blueprint requires a
 proposed ADR, not a discussion, when the architecture is found wanting (§34.10); the
 owner accepts, amends or rejects.

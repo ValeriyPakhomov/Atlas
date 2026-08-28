@@ -1,5 +1,9 @@
 # Build Queue
 
+> Reframed by [the 2026-08 cognitive-expansion review](reviews/2026-08-cognitive-expansion.md):
+> Queue 01 extended, 15/17/18 reframed, everything else unchanged. Section E of that review
+> is the authoritative diff.
+>
 > This document covers *what to build next*. For the long-horizon programme — where
 > quality comes from, how the system learns, phase gates, hardware and local-model
 > migration — see [PROGRAM.md](PROGRAM.md).
@@ -27,10 +31,10 @@ Do not silently change the architecture.
 | 12 | Decision Journal + outcomes | Pending |
 | 13 | Daily `run_atlas_cycle` | Pending |
 | 14 | Daily Brief | Pending |
-| 15 | Alerts | Pending |
+| 15 | Alerts — Atlas owns semantics, channels are replaceable | Pending |
 | 16 | Dashboard V1 | Pending |
-| 17 | MCP / chat interface | Pending |
-| 18 | Semantic memory | Pending |
+| 17 | Read-only MCP server + API integration surface | Pending |
+| 18 | Semantic memory — comparative checkpoint, then choose | Pending |
 | 19 | Quant Lab (Qlib evaluation) | Pending |
 
 ## Queue 00 — Repository and architecture freeze ✅
@@ -95,14 +99,29 @@ sensitivity tier** (ADR-0010) — an untiered field fails the build.
   cycle produces an immutable `RunRecord`.
 - **14** — no news dump; no repeated old event without a new delta; fact, inference and
   speculation separated.
-- **15** — `CRITICAL` requires qualifying evidence or a rule; duplicate alerts suppressed.
+- **15** — a qualifying rule or evidence is required before the top attention class;
+  duplicate alerts suppressed; delivery channels are replaceable adapters with no alert
+  semantics of their own; uses the unified attention model, not a separate severity enum.
 - **16** — the dashboard reads the backend with no business logic in the frontend;
   "What changed?" is the primary home experience.
-- **17** — an external model answers from live Atlas state without direct DB access;
-  tool responses carry provenance IDs.
-- **18** — memory enriches reasoning and can never mutate canonical state outside an
+- **17** — several clients (ChatGPT, Claude, Odysseus, web, Telegram) answer from live
+  Atlas state simultaneously without direct DB access; tool responses carry provenance IDs;
+  **removal test** (ADR-0012): with every external client disconnected, the daily cycle and
+  a replay produce byte-identical results.
+- **18** — a written comparison of candidates (pgvector-native, Mem0, Letta/MemFS, Lethe,
+  and whatever is mature at that time) precedes any implementation choice. Selection
+  criteria include formal supersession semantics: current / outdated / superseded /
+  temporary / preference / changed preference / lesson / disproven lesson. Whichever is
+  chosen, memory enriches reasoning and can never mutate canonical state outside an
   explicit validated workflow.
 - **19** — evaluate Qlib only after V1 operates reliably.
+
+## Beyond V1 — sequenced, not scheduled
+
+Deliberately off the numbered queue so the V1 slice is not diluted (review §E):
+opportunity scan engine; Option/Counterfactual engine; causal-graph extraction from
+accumulated impacts; replanning trigger as a Watch over an externally held plan; and the
+**Execution Gateway** — a separate system requiring an ADR that supersedes ADR-0003.
 
 ## First vertical slice
 

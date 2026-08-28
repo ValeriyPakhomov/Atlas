@@ -56,6 +56,7 @@ alone** and imports the domain package.
 | --- | --- |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design and the Architecture Constitution (A01–A12) |
 | [adr/](docs/adr/) | Binding architecture decisions |
+| [reviews/](docs/reviews/) | Architecture reviews — what was considered, and what was rejected |
 | [DATA_MODEL.md](docs/DATA_MODEL.md) | Entity vocabulary and temporal conventions |
 | [BUILD_QUEUE.md](docs/BUILD_QUEUE.md) | What is built, what is next, acceptance criteria |
 | [PROGRAM.md](docs/PROGRAM.md) | Long-horizon programme: quality model, learning loop, phases, hardware, local models, skills, rhythm |

@@ -27,6 +27,23 @@ code reuse**.
 | [Qlib](https://github.com/microsoft/qlib) | MIT | Deferred to Queue 19 |
 | [Mem0](https://github.com/mem0ai/mem0) | Apache-2.0 | Optional semantic memory behind `SemanticMemoryPort` |
 | [Open Deep Research](https://github.com/langchain-ai/open_deep_research) | MIT | Research-loop patterns only |
+| [Odysseus](https://github.com/odysseus-dev/odysseus) | **AGPL-3.0-or-later — verified** | Reference architecture and optional external client over a protocol/process boundary (ADR-0012). No code copied |
+
+### Odysseus — verification record
+
+Unlike the rows above, this one was verified rather than observed at authoring time.
+
+| Field | Value |
+| --- | --- |
+| Commit inspected | `c9dd68d890a7c0ee0df9a0e351ce22aafd6c7c0f` |
+| `LICENSE` | GNU Affero General Public License, Version 3 |
+| Declared identifier | `AGPL-3.0-or-later` |
+| Verified on | 2026-08-28 |
+
+Because it is AGPL, Atlas keeps a **protocol/process boundary**: Odysseus may act as an
+Atlas client over HTTP/MCP, and no Odysseus source is copied or linked into Atlas. That is
+an engineering boundary, not a legal opinion — any future commercial arrangement requires
+legal review before relying on it (ADR-0005, ADR-0012).
 
 ## Runtime dependencies
 
