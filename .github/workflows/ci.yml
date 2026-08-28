@@ -78,10 +78,17 @@ jobs:
       # pytest without the project's runtime dependencies proves that claim instead
       # of asserting it in prose (ADR-0001).
       - name: Install test runner only
-        run: uv pip install --system pytest
+        run: |
+          uv venv --python 3.12 .boundary-venv
+          uv pip install --python .boundary-venv/bin/python pytest
 
       - name: Domain imports cleanly with no runtime dependencies
-        run: PYTHONPATH=packages python -c "import atlas.domain.clock; print('domain ok')"
+        run: >-
+          PYTHONPATH=packages .boundary-venv/bin/python
+          -c "import atlas.domain.clock; print('domain ok')"
 
       - name: Boundary and determinism guards
-        run: PYTHONPATH=packages:. pytest tests/unit/test_architecture_boundaries.py tests/unit/test_determinism_guards.py
+        run: >-
+          PYTHONPATH=packages:. .boundary-venv/bin/python -m pytest
+          tests/unit/test_architecture_boundaries.py
+          tests/unit/test_determinism_guards.py
