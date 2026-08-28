@@ -48,16 +48,20 @@ priority = (severity^ws · exposure^we · urgency^wu)^(1/(ws+we+wu)) × (1 + irr
 
 ### 2. Attention — what the owner should do about it now
 
-Confidence enters here, as a routing decision rather than a ranking multiplier:
+Confidence enters here, as a routing decision rather than a ranking multiplier. Atlas has
+one attention taxonomy across impacts, briefs and alerts:
 
-| Priority | Confidence | Attention class |
-| --- | --- | --- |
-| high | high | `ACT_OR_REVIEW` — surfaced in the brief with a decision candidate |
-| high | low | `VERIFY` — surfaced with what evidence would resolve it |
-| low | high | `NOTE` — recorded, not surfaced |
-| low | low | `BACKLOG` — recorded only |
+| Attention class | Meaning |
+| --- | --- |
+| `ACTION` | High materiality and sufficient confidence; surface with a decision candidate. The top interrupting class still requires a qualifying deterministic rule or strong evidence. |
+| `VERIFY` | Potentially high materiality with insufficient confidence; surface the evidence needed to resolve it. |
+| `REVIEW` | Material but non-urgent, or not yet eligible for interruption; include in deliberate review. |
+| `BACKGROUND` | Record for context and learning; do not interrupt or lead the brief. |
+| `SUPPRESS` | Duplicate, stale, invalid or below the configured relevance floor; retain the suppression reason. |
 
-Thresholds are configuration, and the classification is deterministic code.
+Thresholds and qualifying rules are configuration, and classification is deterministic
+code. V1 does not model a numeric "expected value of interruption": Atlas has no behavioural
+data that would make such a number honest yet (A12).
 
 ### Storage
 

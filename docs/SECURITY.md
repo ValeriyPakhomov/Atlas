@@ -63,10 +63,12 @@ that personal data never enters a commit in the first place.
 
 The prohibitions above govern what may be **stored**. What may be **sent to a model
 provider** is governed by sensitivity tiers L0–L3, specified in `docs/DATA_TIERS.md` and
-decided in ADR-0010. The short form: L3 (residency, documents, identity-linked deadlines,
-precise location, account identifiers) never leaves the owner's perimeter; L2 leaves only
-after a deterministic transformation that strips identifiers and absolute amounts; an
-embedding of tiered text carries that text's tier.
+decided in ADR-0010. The short form: raw L3 (residency, documents, identity-linked
+deadlines, precise location, account identifiers) never crosses the **model perimeter** to
+an external provider. It may be stored in the managed PostgreSQL storage perimeter under
+the controls above. Personal data crosses the model perimeter only as a deterministic,
+validated L2 privacy projection with provenance; an embedding of tiered text carries that
+text's tier.
 
 Enforcement is in the provider port, not in prompt construction.
 

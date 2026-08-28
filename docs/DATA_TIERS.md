@@ -33,7 +33,7 @@ Clearance: any configured provider. No transformation.
 ### L2 — Personal structured
 
 The owner's financial shape: balances, positions, cash by currency, asset-class and
-currency weights, concentration, runway, monthly burn, income-stream categories, goals,
+currency weights, concentration, runway, monthly burn, income-stream categories, Objectives,
 policy thresholds.
 
 Clearance: external providers **only after the L2 transformation** below. Local models:
@@ -45,17 +45,33 @@ Residency and visa status, identity-linked deadlines, document details, precise 
 location, account and wallet identifiers, institution names tied to the owner, health,
 relationships, and any free text the owner wrote about their circumstances.
 
-Clearance: **local model only.** No transformation makes L3 externally routable — a
-residency deadline is identifying by its nature.
+Clearance: **raw L3 is local-model only.** A deterministic privacy projection may produce
+a separate L2 derivative, but never reclassifies or mutates the L3 source.
 
 Until a local model is deployed (`PROGRAM.md` Phase 3), Atlas does not reason over L3. It
 stores it, computes deterministically over it, and reports the limitation where it
 affects an answer.
 
-## The L2 transformation
+## Schema and effective classification
 
-Deterministic code, unit-tested against fixtures containing planted identifiers. Applied
-before any L2 content reaches an external provider.
+Every relevant persisted value has three classification properties:
+
+| Property | Meaning |
+| --- | --- |
+| `schema_max_tier` | Highest tier the field contract permits |
+| `schema_default_tier` | Classification used when the ingestion contract supplies no more specific value |
+| `effective_tier` | Actual classification of this stored record/value |
+
+`effective_tier` may not exceed `schema_max_tier`. Mixed-content fields such as
+`RawItem.raw_text` carry an effective tier on the record; the column declaration alone is
+not sufficient. Unknown or unclassified personal free text fails high to L3. A derived or
+assembled value inherits the maximum effective tier of every input.
+
+## Privacy projection
+
+Deterministic, allowlist-based code, unit-tested against fixtures containing planted
+identifiers. Applied before any personal content reaches an external provider. Projection
+can consume L2, or raw L3 when producing a distinct L2 derivative; the source is unchanged.
 
 | Removed or replaced | Becomes |
 | --- | --- |
@@ -70,6 +86,10 @@ The transformation is lossy on purpose. A model reasoning about "31% of liquid n
 in one asset, runway 14 months" produces the same causal analysis as one given exact
 figures, because the arithmetic was never the model's job (ADR-0004).
 
+Every projection writes a transformation receipt containing the source reference, source
+effective tier, transformer/version, output tier, transformation time and validation
+result. A validation failure produces no routable derivative.
+
 ### What the transformation does not do
 
 It does not attempt anonymisation in the formal sense. A sufficiently determined observer
@@ -79,15 +99,25 @@ execution.
 
 ## Enforcement points
 
-1. **Schema.** Every persisted field declares a tier. A field without one fails the build.
-   Tier is declared next to the column, not in a separate registry that drifts.
-2. **Prompt assembly.** A prompt's tier is the maximum tier of its inputs. Computed, never
-   asserted by the caller.
+1. **Schema and value.** Every persisted field declares maximum/default tiers, and every
+   relevant stored value carries an effective tier. Missing mixed/free-text classification
+   fails high.
+2. **Prompt assembly.** A prompt's tier is the maximum effective tier of its inputs.
+   Computed, never asserted by the caller.
 3. **Provider port.** `LLMProviderPort` holds each provider's clearance and raises a typed
    `TierViolation` when a request exceeds it. This is the chokepoint; it is the only place
    the rule is enforced, so it is the only place it can be got wrong.
 4. **Run record.** Each model call records the maximum tier transmitted, so an audit can
    answer "what has ever left the perimeter" from stored data.
+
+## Storage perimeter and model perimeter
+
+- The **model perimeter** forbids raw L3 transmission to an external model provider.
+- The **storage perimeter** permits L3 in the selected managed PostgreSQL deployment under
+  project access controls, TLS, encryption at rest and tested off-provider backups.
+
+Managed storage does not grant model clearance. Secrets absolutely prohibited by
+`SECURITY.md` remain forbidden regardless of tier.
 
 ## Provider clearance configuration
 
@@ -126,11 +156,13 @@ Tiers only move upward without ceremony. Moving a field **down** — deciding so
 less sensitive than first classified — requires the same review as an ADR change, because
 it retroactively permits transmission of data already collected under a stricter promise.
 
-## Open question for the owner
+## Founder decision
 
-Whether pseudonymised L2 should reach external providers at all, or whether L2 should
-wait for local models alongside L3. The stricter choice costs analysis quality in V1 and
-delays useful output; the current decision (transform and send) is recorded in ADR-0010
-and is straightforward to tighten later by lowering provider clearance to L1 — a
-configuration change, not a rewrite. That reversibility is why the looser option is
-acceptable as a starting point.
+Transformed L2 may reach an approved external provider; raw L3 may not. This can be
+tightened later by lowering provider clearance to L1 without changing domain contracts.
+
+Production persistence uses Neon PostgreSQL 16 in AWS Frankfurt (`eu-central-1`). Local
+development and tests use Docker PostgreSQL 16. Atlas uses standard PostgreSQL,
+SQLAlchemy, Alembic and `DATABASE_URL`; no Neon-specific dependency may enter the domain.
+Administrative and migration workflows use a direct connection where required; application
+runtime may use a pooled connection. Logical backups are encrypted and stored off-provider.

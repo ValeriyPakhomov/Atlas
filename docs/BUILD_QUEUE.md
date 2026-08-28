@@ -1,8 +1,8 @@
 # Build Queue
 
-> Reframed by [the 2026-08 cognitive-expansion review](reviews/2026-08-cognitive-expansion.md):
-> Queue 01 extended, 15/17/18 reframed, everything else unchanged. Section E of that review
-> is the authoritative diff.
+> Reframed by [the 2026-08 cognitive-expansion review](reviews/2026-08-cognitive-expansion.md)
+> and reconciled before persistence: Queue 01 has one exact scope below; 15/17/18 are
+> reframed; everything else is unchanged.
 >
 > This document covers *what to build next*. For the long-horizon programme — where
 > quality comes from, how the system learns, phase gates, hardware and local-model
@@ -48,32 +48,58 @@ CI baseline; lint/typecheck/test commands; boundary and determinism guards;
 - unit-test suite runs (`make test`);
 - architecture boundaries documented **and enforced in CI**.
 
-## Proposed ADRs blocking queue items
+## ADR gates
 
-Five architectural questions were found unresolved or self-contradictory in Blueprint v1.
-Each is written up as a proposed ADR and needs owner acceptance before the queue item it
-blocks can start, because each changes a schema or a chokepoint that is expensive to
-retrofit.
+Architectural decisions must be accepted before the queue item whose schema or chokepoint
+they control.
 
 | ADR | Question it settles | Blocks |
 | --- | --- | --- |
-| [0010](adr/0010-data-tiers-and-model-routing.md) | What may be sent to which model | **Queue 04** and every LLM call after it |
+| [0010](adr/0010-data-tiers-and-model-routing.md) — **Accepted** | Sensitivity classification, privacy projection and model routing | **Queue 01** tier infrastructure and every LLM call |
+| [0011](adr/0011-goals-are-owner-authored-state.md) — **Accepted** | Canonical owner intent and temporal authority | **Queue 01** Objective/Preference schema |
 | [0007](adr/0007-deterministic-idempotency.md) | Whether embeddings may decide deduplication | **Queue 03** |
 | [0006](adr/0006-dimensions-as-data.md) | Whether dimension keys are data or a hard-coded enum | **Queue 06** |
 | [0008](adr/0008-impact-priority-and-attention.md) | How impacts are ranked, and where confidence enters | **Queue 09** |
 | [0009](adr/0009-probability-integrity.md) | What an unassessable scenario does to a probability set | **Queue 10** |
 
-Queue 01 and 02 are **not** blocked and can start immediately. The one operational
-decision they need is the managed Postgres provider.
+Queue 01 may begin only after ADR-0010 and ADR-0011 are Accepted, the managed PostgreSQL
+provider is recorded, and `DATA_MODEL.md` / `BUILD_QUEUE.md` are mutually consistent.
+Those prerequisites are now met: production uses **Neon PostgreSQL 16 in AWS Frankfurt
+(`eu-central-1`)**; development and tests use local Docker PostgreSQL 16. This is an
+operational provider choice, not a Neon dependency in the domain.
 
 ## Queue 01 — Domain types + persistence foundation (next)
 
-Implement core IDs, timestamp conventions, `Source`, `RawItem`, `Evidence`, `Event`,
-`Narrative`, `RunRecord`, plus Alembic and repositories.
+Implement only:
 
-**Acceptance:** migrations apply from zero; the domain package has no network or
-framework imports; CRUD/repository tests green; **every persisted field declares a
-sensitivity tier** (ADR-0010) — an untiered field fails the build.
+- common IDs, time, provenance and sensitivity primitives;
+- `Source`, `RawItem`, `Evidence`, `Event`, `Narrative`, `RunRecord`;
+- `Objective`, `Preference`;
+- `ForecastQuestion`, `ForecastPrediction`, `ForecastResolution`;
+- sensitivity-tier infrastructure required for persisted fields and mixed-content values;
+- SQLAlchemy persistence, repositories, Alembic and PostgreSQL test infrastructure.
+
+Do **not** implement empty future tables or engines: World/Personal State, Portfolio,
+Impact, Scenario, Policy, Decision, semantic memory, MCP, UI or execution. Their vocabulary
+may be documented in `DATA_MODEL.md`; their persistence lands with their queue item.
+
+**Acceptance:**
+
+- migrations apply from zero and the supported downgrade/upgrade path is clean;
+- tests run against PostgreSQL 16 — no SQLite fallback;
+- the domain package has no ORM, FastAPI, network or LLM dependency;
+- persistence round trips and foreign-key/integrity behaviour are tested;
+- Objective/Preference authoritative selection applies acceptance, active status and
+  temporal validity at arbitrary `as_of`; unaccepted Atlas proposals are inert;
+- active ordinal preference cycles are rejected;
+- Forecast probabilities are bounded, resolution criteria are mandatory, resolutions have
+  provenance and historical predictions are immutable append-only rows;
+- effective-tier inheritance and mixed/free-text fail-high behaviour are tested;
+- privacy-projection receipts are represented and validated without implementing any
+  domain-specific projection;
+- every persisted column declares schema maximum/default tiers and every relevant value
+  follows the effective-tier contract;
+- Queue 00 tests remain green.
 
 ## Remaining acceptance criteria
 
@@ -99,9 +125,10 @@ sensitivity tier** (ADR-0010) — an untiered field fails the build.
   cycle produces an immutable `RunRecord`.
 - **14** — no news dump; no repeated old event without a new delta; fact, inference and
   speculation separated.
-- **15** — a qualifying rule or evidence is required before the top attention class;
+- **15** — a qualifying rule or evidence is required before `ACTION`;
   duplicate alerts suppressed; delivery channels are replaceable adapters with no alert
-  semantics of their own; uses the unified attention model, not a separate severity enum.
+  semantics of their own; uses `ACTION | VERIFY | REVIEW | BACKGROUND | SUPPRESS`, not a
+  separate severity enum.
 - **16** — the dashboard reads the backend with no business logic in the frontend;
   "What changed?" is the primary home experience.
 - **17** — several clients (ChatGPT, Claude, Odysseus, web, Telegram) answer from live

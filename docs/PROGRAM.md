@@ -176,11 +176,12 @@ ever see it:
 | **L0 — Public** | News, market prices, macro series, regulations | Any provider |
 | **L1 — Derived public** | World state, narratives, events, scenarios | Any provider |
 | **L2 — Personal structured** | Balances, positions, currencies, runway, geography | Frontier provider **only** pseudonymised: quantities as ratios or buckets, no identifiers, no institution names |
-| **L3 — Sensitive personal** | Residency documents, deadlines tied to identity, health, relationships, precise location, account identifiers | **Local model only. Never leaves the owner's perimeter.** |
+| **L3 — Sensitive personal** | Residency documents, deadlines tied to identity, health, relationships, precise location, account identifiers | **Raw L3: local model only. Never crosses the external-model perimeter.** |
 
-This is why the local-model path in §7 is not ideological. It is what makes L3 usable at
-all. Until a local model handles L3, Atlas simply does not reason over L3 content — an
-explicit, honest limitation rather than a quiet leak.
+This is why the local-model path in §7 is not ideological. It is what makes raw L3 usable
+for model reasoning. L3 may be stored in managed PostgreSQL under the storage controls in
+`SECURITY.md`, but until a local model handles it Atlas does not send it to a model. A
+separate deterministic L2 privacy projection may be routed externally with provenance.
 
 ### Non-negotiables
 
@@ -242,7 +243,8 @@ and unloved.
 Queue 01–14. One vertical slice: ~7 sources, 10 world dimensions, real personal state, a
 daily brief.
 
-- **Infrastructure:** laptop + managed Postgres (Neon or Supabase free tier).
+- **Infrastructure:** laptop + Neon PostgreSQL 16, AWS Frankfurt (`eu-central-1`). Local
+  development and tests stay on Docker PostgreSQL 16.
 - **Cost:** ~$0–30/month including model calls.
 - **Exit trigger:** the daily cycle runs 30 consecutive days without manual repair, and
   the owner has read 30 briefs and marked them.
@@ -254,7 +256,7 @@ Alerts, scheduling, Telegram surface (Queue 15), dashboard (Queue 16).
 - **Infrastructure:** small VPS — 4 vCPU / 16 GB RAM / ~200 GB NVMe (Hetzner-class,
   €15–25/month). Docker Compose: Postgres, API, worker, Caddy for TLS.
 - **Exit trigger:** ≥50% of briefs contain at least one item the owner marked useful, and
-  no CRITICAL alert has been a false alarm for a month.
+  no `ACTION` alert has been a false alarm for a month.
 
 ### Phase 2 — Make it calibrated
 
@@ -510,7 +512,7 @@ Ordered by probability, not by drama.
 ### Success, by phase
 
 - **Phase 0:** 30 consecutive daily cycles with no manual repair.
-- **Phase 1:** ≥50% of briefs contain an item the owner marked useful; zero false CRITICAL
+- **Phase 1:** ≥50% of briefs contain an item the owner marked useful; zero false `ACTION`
   alerts in a month.
 - **Phase 2:** ≥50 resolved decisions; Brier score beats the base rate on ≥1 scenario
   family; ≥1 rule promoted from inferred to deterministic.
@@ -535,10 +537,8 @@ usefulness rate is not, the correct response is to **remove**, not to add.
 
 ## 17. What to do next
 
-1. Resolve the seven open decisions listed in the Queue 00 report — two of them (owner-
-   specific dimension keys, and semantic near-duplication in the idempotency path) change
-   the schema and must be settled before Queue 06 and Queue 03 respectively.
-2. Choose the managed Postgres provider; this blocks Queue 01.
-3. Build Queue 01–14 as a single vertical slice. Resist every temptation to widen it.
+1. Build Queue 01 against PostgreSQL 16 using the exact scope in `BUILD_QUEUE.md`.
+2. Resolve later proposed ADRs only before the queue item each one gates.
+3. Build Queue 02–14 as a single vertical slice. Resist every temptation to widen it.
 4. Start the daily marking habit **the day the first brief exists**, not later. The
    feedback record cannot be reconstructed retroactively.

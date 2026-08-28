@@ -17,6 +17,8 @@ For a material decision, store what was true *at decision time*:
 - scenario probabilities then;
 - the personal state used;
 - the policy state;
+- the Objectives active at decision time;
+- the alternatives considered;
 - the decision/action class;
 - confidence;
 - expiry / review time.
@@ -41,6 +43,9 @@ Later, an `Outcome` answers:
 An `Outcome` is a **new row**. A retrospective never mutates the original decision, and
 no LLM may rewrite history after the fact. This is the whole point: a decision record
 that can be edited in hindsight cannot calibrate anything.
+
+Decision rows also retain the rule, weight and prompt/artifact versions in force when they
+were produced. Later changes cannot rewrite the meaning of a historical decision.
 
 ## Acceptance (Queue 12)
 

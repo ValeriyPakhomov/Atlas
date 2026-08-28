@@ -4,7 +4,8 @@
 - Scope: final architecture review **before the first persistence migrations**
 - Inputs: Blueprint v1; Queue 00 and ADRs 0001–0010; Constitution A01–A12; an
   `odysseus-dev/odysseus` source audit
-- Status: review complete; four ADRs proposed (0011–0014); no production code written
+- Status: review complete; reconciled before persistence — ADR-0010/0011 accepted,
+  ADR-0012–0014 remain proposed; no production code written by this review
 
 ---
 
@@ -40,12 +41,12 @@
 9. **`Option` needs reservation, not implementation.** But `Decision` must record the
    alternatives considered from day one — "what did I choose *among*" is unreconstructable,
    and a decision journal without it cannot support regret or opportunity-cost analysis.
-10. **Attention needs unification, and this is a real defect to fix now.** ADR-0008
-    introduced four attention classes; the blueprint has three alert severities; §5.8
-    proposes five levels. Three competing taxonomies is worse than any one of them.
-11. The right attention rule is deterministic and cheap: **interrupt only when the
-    expected value of interruption exceeds its cost**, with the threshold scaling against
-    recent interruption count. This directly implements the Attention Covenant.
+10. **Attention needs unification, and this is a real defect fixed by the pre-persistence
+    reconciliation.** The sole taxonomy is `ACTION | VERIFY | REVIEW | BACKGROUND |
+    SUPPRESS` across impacts, briefs and alerts.
+11. Attention stays deterministic and separate from priority/confidence. Numeric
+    expected-value-of-interruption modelling is deferred until owner behavioural data can
+    support it without false precision.
 12. **The causal graph is a later engine with one cheap change now**: make
     `Impact.causal_chain` a typed, normalised structure instead of free JSON, so edges can
     be extracted later without re-parsing prose. Building the graph before there are
@@ -74,9 +75,8 @@
     commodity. It is longitudinal structured point-in-time state, a decision-outcome ledger,
     personal causal rules, deterministic auditable arithmetic and replay. The data is the
     moat, and it is not transferable.
-20. **Verdict: proceed.** Two prerequisites, both approvals rather than engineering —
-    accept ADR-0010, and name the Postgres provider. Everything else in this review lands
-    in its own queue item without rework.
+20. **Verdict: proceed.** The pre-persistence reconciliation accepted ADR-0010/0011,
+    selected Neon PostgreSQL 16 in AWS Frankfurt, and made Queue 01's scope explicit.
 
 ---
 
@@ -87,8 +87,8 @@
 | # | Change | Why it cannot wait |
 | --- | --- | --- |
 | B1 | Every persisted field declares a sensitivity tier (ADR-0010) | Retrofitting a tier onto every model touches every file and every call site; the enforcement point must exist before the first field does |
-| B2 | `Objective` and `Preference` tables; `Policy.objective_id?` (ADR-0011) | Objectives are temporally versioned. A decision made in Queue 12 must be judgeable against what the owner wanted *then*; that history starts accumulating only once the table exists |
-| B3 | `Forecast` table (§5.10) | Owner predictions cannot be backfilled. Every day without it is a day of lost calibration data |
+| B2 | Queue 01 `Objective` and `Preference`; future `Policy.objective_id?` contract (ADR-0011) | Objectives are temporally versioned. A decision made in Queue 12 must be judgeable against what the owner wanted *then*; Policy is not created early as a placeholder |
+| B3 | Minimal `ForecastQuestion`, `ForecastPrediction`, `ForecastResolution` ledger | Owner predictions cannot be backfilled. Store primitives; derive Brier/calibration later |
 | B4 | Unify attention into one model across impacts and alerts | Three competing taxonomies would be implemented into Queue 09 and Queue 15 separately and then have to be reconciled across both |
 
 ### RECOMMENDED NOW — cheap, and expensive later
@@ -134,13 +134,14 @@
 
 ---
 
-## C. New ADR proposals
+## C. ADR outcomes
 
-Four, each because it settles a question that would otherwise be settled by accident.
+Four records settle questions that would otherwise be decided by accident. ADR-0011 is
+Accepted by the reconciliation; ADR-0012–0014 remain Proposed until their later gates.
 
 | ADR | Title | Why it earns its place |
 | --- | --- | --- |
-| [0011](../adr/0011-goals-are-owner-authored-state.md) | Goals, preferences and constraints are owner-authored canonical state | Opportunity and counterfactual are undefinable without goals; and this is the one domain where the model must never author |
+| [0011](../adr/0011-goals-are-owner-authored-state.md) | Objectives, preferences and constraints are owner-authored canonical state | Opportunity and counterfactual are undefinable without owner intent; and this is the one domain where the model must never author |
 | [0012](../adr/0012-external-workspaces-are-replaceable.md) | External workspaces are replaceable surfaces | Answers the Odysseus question as a durable principle; carries the removal test and the AGPL boundary |
 | [0013](../adr/0013-autonomy-ladder-and-execution-gateway.md) | Autonomy ladder and the Execution Gateway boundary | Extends ADR-0003 without weakening it: describes safe execution so it is never improvised |
 | [0014](../adr/0014-auditable-self-improvement.md) | Self-improvement is proposed, validated, approved and versioned | Governance must exist before the mechanism, or auto-promotion becomes permanent by default |
@@ -161,7 +162,7 @@ beginning, can it be recovered later?* If no, define now. If yes, defer.
 | --- | --- | --- |
 | **Objective** | `DEFINE NOW` | Temporally versioned. Judging a past decision needs the objectives active at that time; unrecoverable afterwards. Two columns + interval, cheap |
 | **Preference** | `DEFINE NOW` | Ordinal pairs only. Tiny table. Same recoverability argument |
-| **Forecast** | `DEFINE NOW` | Owner and Atlas predictions with outcome and Brier. Small, unreconstructable, highest value per byte in this review |
+| **Forecast ledger** | `DEFINE NOW` | Owner/Atlas predictions and provenance-backed outcomes are unreconstructable. Brier/calibration remain derived analytics |
 | **Constraint** | `REJECT` | Is a `Policy` with `objective_id?`. Adding one nullable column instead of an entity |
 | **AntiGoal** | `REJECT` | `Objective.direction = avoid` |
 | **Opportunity** | `REJECT` (as entity) | A view over `Impact` given `objective_refs[]`. Requires B6, not a table |
@@ -174,13 +175,17 @@ beginning, can it be recovered later?* If no, define now. If yes, defer.
 | **Approval** | `RESERVE CONCEPT ONLY` | Same |
 | **ExecutionRecord** | `RESERVE CONCEPT ONLY` | Explicitly lives in the **Gateway's** schema, never Atlas Core's. Atlas reads it back as an external observation with provenance |
 
-### Changes to objects Queue 01 already creates
+### Queue 01 persistence contract
 
 | Object | Change |
 | --- | --- |
-| all entities | Every field declares a sensitivity tier — an untiered field fails the build (ADR-0010) |
-| `Policy` | `+ objective_id?` |
-| all derived records | `+ artefact_version_refs` — the rule, weight and prompt versions in force (ADR-0014) |
+| all Queue 01 entities | Every column declares maximum/default tiers; relevant values carry effective tier (ADR-0010) |
+| owner intent | `Objective` and `Preference`, with accepted active point-in-time authority and cycle rejection |
+| forecast ledger | `ForecastQuestion`, immutable `ForecastPrediction`, provenance-backed `ForecastResolution`; no forecast engine |
+
+`Policy.objective_id?` and derived-record artifact-version references remain binding future
+contracts and are implemented with their owning later queue items, not as Queue 01
+placeholder tables.
 
 ### Changes to objects created by later queue items — specified now so they are built right
 
@@ -199,9 +204,9 @@ Only what changes. Unchanged items are omitted deliberately.
 | Queue | Change |
 | --- | --- |
 | 00 | **Unchanged.** No boundary is modified |
-| 01 | **Extended:** `Objective`, `Preference`, `Forecast`; `Policy.objective_id?`; tier declaration on every field; artefact-version columns on derived records |
+| 01 | **Extended and bounded:** ingestion foundation plus `Objective`, `Preference`, the three-table Forecast ledger and sensitivity infrastructure. No future-engine placeholder tables |
 | 02–08 | **Unchanged** |
-| 09 | **Extended:** goal linkage, typed causal chain, unified attention class (replaces the four classes introduced in ADR-0008) |
+| 09 | **Extended:** objective linkage, typed causal chain and the reconciled five-class attention taxonomy in ADR-0008 |
 | 10–14 | **Unchanged** |
 | 15 | **Reframed:** Atlas owns alert semantics — impact, confidence, suppression, attention policy. Delivery channels are replaceable adapters. Uses the unified attention model, not a separate severity enum |
 | 16 | **Unchanged, and explicitly confirmed:** Atlas builds its own state/impact/scenario-first dashboard. No external workspace UI |
@@ -249,8 +254,9 @@ opinion.
 
 ## G. Autonomy / execution matrix
 
-Atlas V1 today: **L0–L1 in every domain.** This table describes the target end state, and
-everything above L1 requires the Execution Gateway to exist first.
+Atlas V1 defaults to **L0–L1 in every domain**. L2 simulation is pure Core computation and
+does not require the Execution Gateway. L3 preparation requires the Gateway contract and
+boundary; L4–L5 operate in the Gateway; L6 is unsupported.
 
 | Domain | Max level | Required approval | Notes |
 | --- | --- | --- | --- |
@@ -347,20 +353,16 @@ the anti-metrics — is what protects it.
 
 `PROCEED TO QUEUE 01`
 
-Conditional on two prerequisites, both owner approvals rather than engineering work:
+The prerequisites are resolved by the pre-persistence reconciliation:
 
-1. **Accept ADR-0010** (data tiers). Queue 01 declares a tier on every field it creates;
-   retrofitting is expensive.
-2. **Name the managed Postgres provider** (Neon, Supabase or RDS-equivalent).
-
-ADR-0011 is strongly recommended before the first migration — `Objective`, `Preference`
-and `Forecast` are cheap now and unreconstructable later — but its tables are additive, so
-Queue 01's ingestion entities are not blocked by it.
+1. ADR-0010 and ADR-0011 are Accepted with their amendments.
+2. Managed production PostgreSQL is Neon PostgreSQL 16 in AWS Frankfurt
+   (`eu-central-1`); local development/tests use Docker PostgreSQL 16.
+3. `DATA_MODEL.md` and `BUILD_QUEUE.md` define the same bounded Queue 01 scope.
 
 ADRs 0006, 0007, 0008, 0009, 0012, 0013 and 0014 block later queue items, not this one.
 They can be accepted at leisure, in this order of urgency: 0007 (before Queue 03), 0006
 (before Queue 06), 0008 (before Queue 09), 0009 (before Queue 10), 0012 (before Queue 17),
-0011 (before Queue 12 at the latest), 0014 and 0013 (before any promotion or execution
-work exists).
+0014 and 0013 (before any promotion or execution work exists).
 
-No production feature code was written. Queue 01 will not start until approved.
+No production feature code was written by this review. Queue 01 may now start directly.

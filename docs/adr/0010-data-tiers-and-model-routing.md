@@ -1,6 +1,6 @@
 # ADR-0010 — Data sensitivity tiers govern model routing
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-28
 - Supersedes / Superseded by: —
 
@@ -31,13 +31,12 @@ fixes the binding rules.
 | **L0** | Public: news, market prices, macro series, regulations, filings | any configured provider |
 | **L1** | Derived public: events, narratives, world state, scenarios | any configured provider |
 | **L2** | Personal structured: balances, positions, currency and geography weights, runway | external provider **only after transformation** — ratios or buckets, no identifiers, no institution names, no absolute amounts |
-| **L3** | Sensitive personal: residency and document status, identity-linked deadlines, precise location, account and wallet identifiers, health, relationships | **local model only; never leaves the owner's perimeter** |
+| **L3** | Sensitive personal: residency and document status, identity-linked deadlines, precise location, account and wallet identifiers, health, relationships | **raw L3: local model only; never crosses the external-model perimeter** |
 
 Binding rules:
 
-1. **The tier travels with the data.** Tier is a property of the field in the schema, not
-   a judgement made at the call site. A prompt assembled from tiered fields inherits the
-   maximum tier present.
+1. **The tier travels with the data.** A prompt assembled from tiered values inherits the
+   maximum effective tier present.
 2. **Routing is enforced in the provider port, not in prompts.** `LLMProviderPort` rejects
    a request whose maximum tier exceeds the destination's clearance. A prompt cannot opt
    out, and a mistake is a typed error, not a leak.
@@ -50,8 +49,43 @@ Binding rules:
 5. **Every model call records the maximum tier transmitted**, alongside provider, model
    and prompt version, so the transmission history is auditable after the fact.
 6. **Local deployment is a clearance, not a bypass.** A local model is cleared for L3
-   because the data does not leave the perimeter — not because local models are trusted
+   because raw L3 does not cross the model perimeter — not because local models are trusted
    more. All other rules, including A04 (no direct writes to canonical truth), still apply.
+
+### Schema classification and effective classification
+
+A column declaration alone cannot classify mixed-content fields such as
+`RawItem.raw_text`. The schema and the stored value therefore carry distinct information:
+
+- `schema_max_tier` — the highest tier that the field is allowed to contain;
+- `schema_default_tier` — the tier used when the ingestion contract supplies no more
+  specific classification;
+- `effective_tier` — the actual classification of the stored value or record.
+
+The effective tier may never exceed the schema maximum. Unknown or unclassified personal
+free text fails high to L3. Combining values inherits their maximum effective tier. Model
+routing uses the effective tier; schema metadata alone never authorises transmission.
+
+### Privacy projection
+
+Atlas may deterministically produce a new L2 derivative from raw L3. The original remains
+L3; projection never reclassifies or mutates it. The derivative has its own tier and
+provenance, including a transformation receipt with the source reference and effective
+tier, transformer/version, output tier, transformation time and validation result.
+
+A privacy projection is allowlist-based, deterministic, tested with planted identifiers
+and fails closed. A failed or incomplete projection produces no externally routable value.
+
+### Storage perimeter and model perimeter
+
+These are separate controls:
+
+- **Model perimeter:** raw L3 is never transmitted to an external model provider.
+- **Storage perimeter:** L3 may be persisted in the project's selected managed PostgreSQL
+  deployment under its access, transport-encryption, at-rest-encryption and backup controls.
+
+This does not relax `SECURITY.md`: seed phrases, private keys, withdrawal secrets, banking
+passwords and other absolutely prohibited secrets are never stored regardless of tier.
 
 ## Consequences
 
@@ -63,14 +97,17 @@ Binding rules:
   adding a provider is a deliberate act.
 - The transformation layer for L2 is real work (Queue 04 onward) and must be tested like
   arithmetic, because a leak here is silent.
+- Managed storage is not confused with model clearance: a database provider may hold
+  encrypted-at-rest L3 while an external model provider may not receive raw L3.
 
 ## Enforcement
 
-- A test asserts every persisted field has a declared tier; an untiered field fails the
-  build rather than defaulting to permissive.
+- A test asserts every persisted field has declared schema maximum/default tiers and every
+  relevant stored value has an effective tier; missing mixed/free-text classification fails
+  high rather than defaulting to permissive.
 - A test asserts `LLMProviderPort` raises on a tier/clearance violation, for each tier.
-- A test asserts the L2 transformation removes identifiers and absolute amounts, using
-  fixtures containing planted identifiers.
+- A test asserts privacy projection removes everything outside its allowlist, including
+  planted identifiers, and records a valid transformation receipt.
 - Run records include the maximum tier transmitted per call.
 
 ## Alternatives considered

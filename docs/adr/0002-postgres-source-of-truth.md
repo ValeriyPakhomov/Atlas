@@ -17,7 +17,7 @@ Constitution A01 and A02 require structured truth and point-in-time reasoning.
 
 PostgreSQL holds all canonical state: sources, raw items, evidence, events,
 narratives, world-state snapshots and dimensions, personal state, accounts,
-positions, cash, income, geography, goals, policies, scenarios, impacts, decisions,
+positions, cash, income, geography, Objectives, Preferences, policies, scenarios, impacts, decisions,
 outcomes and run records.
 
 Semantic memory (`packages/atlas/memory`, Queue 18) sits behind a `SemanticMemoryPort`

@@ -1,14 +1,14 @@
-# ADR-0011 — Goals, preferences and constraints are owner-authored canonical state
+# ADR-0011 — Objectives, preferences and constraints are owner-authored canonical state
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-28
 - Supersedes / Superseded by: —
 
 ## Context
 
-`Goal` today is `id, owner_id, title, category, horizon, target_date?, target_value?,
-priority, status`. That is a to-do item with a deadline. It cannot express what Atlas
-actually needs to reason with.
+The old `Goal` concept was a to-do item with a deadline. It could not express what Atlas
+needs to reason with and is replaced by `Objective`; the two concepts must never coexist as
+competing canonical goal systems.
 
 The gap is load-bearing rather than cosmetic, because two capabilities are **undefinable**
 without it:
@@ -36,12 +36,12 @@ configuration.
 Objective
 - id, owner_id
 - title, description
-- category            # financial | geographic | career | startup | health | relational | resilience
+- category_key        # registry/data-driven taxonomy, never a PostgreSQL enum
 - direction           # attain | avoid | maintain
 - horizon             # short | medium | long
 - target_date?, target_value?, target_currency?
 - priority            # ordinal within owner, not a score
-- status              # draft | active | achieved | abandoned | superseded
+- status              # draft | active | achieved | abandoned | inactive | superseded
 - authored_by         # owner | atlas_proposed
 - accepted_at?        # null while atlas_proposed; set when the owner accepts
 - valid_from, valid_to
@@ -58,6 +58,9 @@ Preference
 - higher_objective_id, lower_objective_id
 - strength           # weak | strong
 - rationale
+- authored_by        # owner | atlas_proposed
+- accepted_at?       # null until explicitly accepted by the owner
+- status             # draft | active | inactive | superseded
 - valid_from, valid_to
 ```
 
@@ -65,6 +68,12 @@ Pairwise ordinal comparisons only. **No utility functions, no trade-off rates, n
 exchange coefficients.** People cannot state "I would give up 3 months of runway for 10%
 more optionality" reliably, and a badly elicited number is worse than an honest ordering
 because it propagates false precision into every downstream ranking (A12).
+
+The category taxonomy is data-driven and validated through a registry. Adding an objective
+category is a data change, not a schema migration.
+
+Active pairwise preferences must be acyclic for the requested point in time. A proposed
+cycle such as `A > B`, `B > C`, `C > A` is rejected before it can become canonical.
 
 ### Constraints are Policies, not a new entity
 
@@ -83,9 +92,13 @@ would have to decide which to use.
 ### The authority rule
 
 An LLM may create an `Objective` or `Preference` only with `authored_by = atlas_proposed`
-and `status = draft`. Such a record is **inert**: no engine may read a draft or unaccepted
-objective when ranking, scoring, or generating impacts, opportunities or decisions. It
-becomes authoritative only when the owner sets `accepted_at`.
+and `status = draft`. Such a record is **inert**. It becomes authoritative only through an
+explicit owner acceptance that sets `accepted_at` and activates a validity interval.
+
+At `as_of = T`, decision engines may consume only owner-accepted records whose validity
+interval contains `T` and whose status is `active`. Past accepted versions remain stored
+for replay. A later objective or preference change never changes the owner intent used by
+a historical decision.
 
 This is A04 applied to the one domain where the stakes are highest.
 
@@ -96,8 +109,9 @@ This is A04 applied to the one domain where the stakes are highest.
 - Decisions become judgeable against the objectives that were `active` at their
   `decision_time`, because objectives are temporally versioned. Without this, every
   retrospective is contaminated by hindsight about what the owner wanted.
-- Cost: two small tables and one nullable column, added in Queue 01. Cheap now, and
-  effectively unreconstructable later — you cannot recover what you wanted last March.
+- Cost: two small Queue 01 tables and one nullable `Policy.objective_id` added with Policy
+  in Queue 11. Cheap now, and effectively unreconstructable later — you cannot recover what
+  you wanted last March.
 - Atlas can propose objectives (e.g. "you appear to be managing toward a 12-month runway;
   make it explicit?") without ever acting on its own proposal.
 
@@ -105,6 +119,9 @@ This is A04 applied to the one domain where the stakes are highest.
 
 - A test asserts that no engine query returns objectives with `accepted_at IS NULL`.
 - A test asserts an LLM-originated write with `authored_by = owner` is rejected.
+- A test asserts authoritative Objective and Preference queries apply acceptance, active
+  status and point-in-time validity together.
+- A test rejects a cycle among active ordinal preferences.
 - Queue 09 acceptance gains: an impact touching no active objective is classified, ranked
   and stored, but is not presented as an opportunity.
 

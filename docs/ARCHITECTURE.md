@@ -62,7 +62,7 @@ EXTERNAL SOURCES  markets / macro / news / geopolitics / laws / AI / climate
                                                                           |
    STRUCTURED PERSONAL TRUTH  ------------------ x ---------------------- +
    assets / cash / geography / residency /                                |
-   career / goals / policies / runway                                     v
+   career / objectives / policies / runway                                v
                                                                     IMPACT ENGINE
                                                                           |
                                                                           v
@@ -169,11 +169,15 @@ kept provider-neutral. Where deterministic code can do the job, it wins outright
 
 ## 8b. Data tiers and model routing
 
-Every value Atlas handles carries a sensitivity tier (L0 public, L1 derived public, L2
-personal structured, L3 sensitive personal), and the tier determines which model class may
-receive it. Enforcement lives in `LLMProviderPort`, not in prompts, so a call site cannot
-opt out. L3 never leaves the owner's perimeter, which is what makes the local-model work
-in `PROGRAM.md` §8 a privacy requirement rather than a cost optimisation.
+Every relevant value Atlas handles carries schema maximum/default tiers and an effective
+tier (L0 public, L1 derived public, L2 personal structured, L3 sensitive personal). Model
+routing uses the effective tier. Enforcement lives in `LLMProviderPort`, not in prompts,
+so a call site cannot opt out. Raw L3 never crosses the model perimeter to an external
+provider; a deterministic privacy projection may create a distinct L2 derivative.
+
+The storage perimeter is separate: L3 may be persisted in managed PostgreSQL under the
+project's security and backup controls. This is what makes local models a requirement for
+L3 reasoning rather than a claim that all sensitive bytes live on local hardware.
 
 Specification: `docs/DATA_TIERS.md`. Decision: ADR-0010.
 
@@ -185,11 +189,17 @@ TypeScript for the dashboard, Docker, GitHub Actions, OpenTelemetry-compatible
 telemetry. No Kubernetes, Kafka or microservices in V1. New database or queue
 technology requires an ADR.
 
+Development and tests use local Docker PostgreSQL 16. Production uses Neon PostgreSQL 16
+in AWS Frankfurt (`eu-central-1`). Neon is an operational provider choice only: Atlas uses
+standard PostgreSQL, SQLAlchemy, Alembic and `DATABASE_URL`, with no Neon-specific domain
+dependency. Migrations/administration use a direct connection where required; application
+runtime may use a pooled connection. Encrypted logical backups live off-provider.
+
 ## 9b. Build / Borrow / Adapt
 
 **Build** — Atlas-specific intelligence, and only this: event model, World State, Personal
 State, portfolio and risk math, Impact Engine, Scenario Engine, Policy Engine, Decision
-Journal, outcome and calibration, goals and constraints, the opportunity view, and
+Journal, outcome and calibration, Objectives and policy constraints, the opportunity view, and
 counterfactual reasoning where justified.
 
 **Borrow or adapt** — commodity infrastructure and patterns: financial data through
