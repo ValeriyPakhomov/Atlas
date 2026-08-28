@@ -58,6 +58,7 @@ alone** and imports the domain package.
 | [adr/](docs/adr/) | Binding architecture decisions |
 | [DATA_MODEL.md](docs/DATA_MODEL.md) | Entity vocabulary and temporal conventions |
 | [BUILD_QUEUE.md](docs/BUILD_QUEUE.md) | What is built, what is next, acceptance criteria |
+| [PROGRAM.md](docs/PROGRAM.md) | Long-horizon programme: quality model, learning loop, phases, hardware, local models, skills, rhythm |
 | [SOURCE_POLICY.md](docs/SOURCE_POLICY.md) | Source reliability classes and dedupe |
 | [WORLD_STATE.md](docs/WORLD_STATE.md) · [PERSONAL_STATE.md](docs/PERSONAL_STATE.md) · [IMPACT_ENGINE.md](docs/IMPACT_ENGINE.md) · [SCENARIO_ENGINE.md](docs/SCENARIO_ENGINE.md) · [DECISION_JOURNAL.md](docs/DECISION_JOURNAL.md) | Engine contracts |
 | [SECURITY.md](docs/SECURITY.md) | Prohibitions, credentials, data handling |

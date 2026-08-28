@@ -1,5 +1,9 @@
 # Build Queue
 
+> This document covers *what to build next*. For the long-horizon programme — where
+> quality comes from, how the system learns, phase gates, hardware and local-model
+> migration — see [PROGRAM.md](PROGRAM.md).
+
 One item at a time. Each requires tests and a documented acceptance result before the
 next begins. Every item ends with the report block in `CLAUDE.md`.
 
