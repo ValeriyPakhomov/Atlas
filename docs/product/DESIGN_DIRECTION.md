@@ -124,6 +124,16 @@ connectors (an `UNVERIFIED` link dots its connector), and to any trend mark. It 
 nothing, works in greyscale, and carries the same epistemic distinction the typography
 carries — so `EvidenceClassTag` gains a graphical partner rather than standing alone.
 
+**Hatch extends the same rule to fills.** Where a stroke would be dotted, a fill is
+hatched at 45°: *this is not the thing itself*. It marks unassessed probability mass, a
+prior-period reference bar, and any projected quantity. Adopted from reference review §14;
+it turns two isolated devices into one system —
+
+| Form | Measured / current | Not measured / not current |
+| --- | --- | --- |
+| Line | solid | dotted |
+| Fill | solid | 45° hatch |
+
 Two companions from the same source:
 
 - **Annotate the delta, not the value.** A change is labelled on the mark itself
@@ -261,3 +271,48 @@ adopted alternatives deliver the same three qualities using material rather than
 
 Q1, Q4, Q5, Q7 and Q8 remain open. **Q8 — quiet rather than empty — was answered by none
 of the four**, exactly as the protocol predicted: nobody publishes a quiet day.
+
+
+---
+
+## 14. Reference review — 2026-08, second set
+
+Four further references, same studio, same signature: acid green or yellow on near-black,
+glass, avatars, radial gauges, very large numerals. Consistent and well made. Scored
+against the protocol; three mechanisms adopted.
+
+### Adopted
+
+**Hatch as the fill-side of the stroke rule.** One reference sets a prior-period bar as a
+hatched block beside the current period as a solid one. That is the same epistemic
+distinction Atlas already draws with solid-versus-dotted lines, extended to areas. Atlas
+already hatched unassessed probability; this makes it a rule rather than a one-off (§3b).
+
+**Numeral weight split.** `$23,` set heavy and `876` set lighter. It is not decoration —
+it is a typographic expression of A12: emphasise magnitude, de-emphasise precision the
+method does not really support. Applied to Atlas figures such as `14.2` months, where the
+decimal carries less weight than the integer.
+
+**Leader lines.** One reference draws a dotted line from an annotation to the exact point
+on a chart it refers to. That is provenance made visual, and it is directly useful for
+connecting an evidence chip to the point on a dimension's history where it landed. Dotted,
+consistent with §3b.
+
+### Refused
+
+Acid green and yellow accents (neon, and one of them pairs green with red). Glass panels
+and 3D renders. Avatars as a primary information device. Mesh and rainbow gradients.
+Candlesticks.
+
+**Radial gauges and speedometers, specifically.** They imply a proportion of a whole,
+which most Atlas quantities are not — a `−3…+3` dimension score has no denominator. One
+reference makes the failure vivid: its gauge sweeps from *Strong Sell* to *Strong Buy*.
+That is a trading signal, which is the single output Atlas must never produce
+(`PROGRAM.md` §2). The form carries the thing we rejected.
+
+### Standing observation
+
+Across all eight references, the qualities that attract are depth, numeral confidence and
+evident craft. The mechanisms used to achieve them — lighting, neon, density — are the
+ones that fail on day 200. Every adoption so far has substituted a material or structural
+mechanism for a lighting one, and kept the quality.
