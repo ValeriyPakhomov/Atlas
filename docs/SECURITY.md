@@ -17,6 +17,28 @@ Atlas must never store, log, cache, embed or transmit:
 There is no configuration, adapter or emergency path that makes any of these
 acceptable. A feature that requires one is out of scope by definition.
 
+## Repository visibility
+
+**This repository is public.** Everything committed is permanently readable, and git
+history cannot be retracted once pushed — a later force-push does not remove content
+from forks, clones or caches.
+
+Therefore the prohibitions above are not merely runtime rules; they are **commit-time**
+rules. Never commit:
+
+- personal state of any kind: balances, positions, account or wallet identifiers,
+  residency documents, addresses, deadlines tied to a real person;
+- fixtures derived from real personal data — golden and eval fixtures are synthetic;
+- configuration values. `.env.example` carries names and comments only.
+
+Before any queue item that touches personal state (Queue 07 onward), confirm that the
+data path terminates in the database, never in the repository. If a capability genuinely
+requires committed personal content, it belongs in a private deployment or a private
+repository, decided **before** the code is written.
+
+CI runs secret scanning, but scanning is a backstop, not the control. The control is
+that personal data never enters a commit in the first place.
+
 ## Credential rules
 
 - Read-only API credentials only, with trading and withdrawal **disabled at the

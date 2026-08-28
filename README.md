@@ -64,7 +64,29 @@ alone** and imports the domain package.
 | [EVALS.md](docs/EVALS.md) | Test suites and model evaluations |
 | [CLAUDE.md](CLAUDE.md) · [AGENTS.md](AGENTS.md) | Coding-agent execution contract |
 
+## This repository is public; the system it describes is not
+
+Atlas is a single-owner private system. **This repository is public so the
+architecture can be reviewed**, and that sets a hard boundary on what may ever be
+committed here:
+
+| Belongs here | Never here |
+| --- | --- |
+| Architecture, ADRs, engine contracts | Personal state of any kind |
+| Engine code and deterministic operators | Real balances, positions, account or wallet identifiers |
+| Synthetic fixtures | Fixtures derived from real personal data |
+| Configuration **names** (`.env.example`) | Configuration **values**, credentials, tokens |
+| Owner-genericity in the domain model | Residency documents, addresses, health, relationships |
+
+Personal state lives only in the owner's private deployment — the database and its
+backups — never in version control. This is enforced by ADR-0002 (canonical state is
+the database, not the repository) and by `docs/SECURITY.md`.
+
+If Atlas ever needs to hold something that cannot be public, it goes in a private
+deployment or a private repository — not into this one with a later `git filter-repo`.
+History is not retractable once pushed.
+
 ## Licence
 
-Private and unlicensed. Third-party attribution is tracked in
+Unlicensed — no rights granted. Third-party attribution is tracked in
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
