@@ -149,3 +149,4 @@ web product (`docs/PROGRAM.md` phases).
 | [UX_DATA_CONTRACTS.md](UX_DATA_CONTRACTS.md) | What the frontend needs from the API |
 | [SYNTHETIC_DESIGN_DATA.md](SYNTHETIC_DESIGN_DATA.md) | One coherent day to design against |
 | [UX_ROADMAP.md](UX_ROADMAP.md) | What to design now, and what must wait |
+| [VISUAL_REFERENCE_PROTOCOL.md](VISUAL_REFERENCE_PROTOCOL.md) | How references are used without diluting the direction |
