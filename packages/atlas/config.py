@@ -24,13 +24,27 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
         frozen=True,
+        # A blank environment variable is the absence of a value, not a value.
+        # Hosting platforms routinely materialise declared-but-unset variables as
+        # empty strings; without this, `ATLAS_ENVIRONMENT=` overrides the default
+        # with "" and fails validation at process start.
+        env_ignore_empty=True,
     )
 
-    environment: Environment = "local"
+    # Fail-safe default. Every environment-gated behaviour in Atlas is more
+    # permissive in "local" than in "production" — API docs are the current
+    # example — so an unset value must resolve to the most restrictive setting,
+    # never the most convenient one. Local development sets this explicitly in
+    # `.env` (created by `make bootstrap` from `.env.example`) and CI sets it in
+    # the workflow, so the default is only ever reached by a misconfiguration —
+    # which is exactly when it must not open anything up.
+    environment: Environment = "production"
     owner_timezone: str = "Europe/Istanbul"
     base_currency: str = "USD"
 
     database_url: str = "postgresql+psycopg://atlas:atlas@localhost:5432/atlas"
+    database_direct_url: str | None = None
+    test_database_url: str = "postgresql+psycopg://atlas:atlas@localhost:5433/atlas_test"
 
     # ADR-0003: Atlas V1 is read-only with respect to money, brokers, wallets and
     # external systems. There is no configuration path that enables execution; the

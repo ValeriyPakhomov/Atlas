@@ -1,7 +1,14 @@
 # Atlas Data Model
 
-Vocabulary and canonical entities. Tables land in Queue 01+; this document fixes the
-meaning of each entity so engines are written against a stable model.
+Vocabulary and canonical entities. This document distinguishes the stable vocabulary from
+the queue item that creates each table; documenting a future entity does not authorise an
+empty placeholder table.
+
+**Queue 01 implements only:** common ID/time/provenance and sensitivity primitives;
+`Source`, `RawItem`, `Evidence`, `Event`, `Narrative`, `RunRecord`, `Objective`,
+`Preference`, `ForecastQuestion`, `ForecastPrediction` and `ForecastResolution`, plus
+their SQLAlchemy persistence and repositories. All other entities below land with their
+named later queue item.
 
 Identifiers are UUID/ULID. Pydantic is used at API boundaries, SQLAlchemy/SQLModel or
 explicit SQL at persistence boundaries, and stdlib dataclasses inside the domain
@@ -23,6 +30,17 @@ A02 requires these to be distinct, never collapsed into one `timestamp`:
 
 State changes **append a new row and close the previous interval**. Nothing is
 overwritten. Derived rows carry `run_id` and provenance (A05).
+
+At `as_of = T`, authoritative owner intent contains only records accepted by the owner,
+with `status = active` and `valid_from <= T < valid_to` (or no `valid_to`). Closed versions
+remain queryable for replay.
+
+## Sensitivity columns
+
+Persistence mappings declare `schema_max_tier` and `schema_default_tier` next to every
+column. Each relevant record/value carries an `effective_tier`; mixed or unclassified
+personal free text fails high to L3. Effective tier may not exceed the schema maximum and
+derived values inherit the maximum effective tier of their inputs (ADR-0010).
 
 ## Provenance chain
 
@@ -92,34 +110,65 @@ ai_disruption_exposure, active`.
 fallback | work_market), residence_status, valid_until?, next_deadline?,
 mobility_friction, currency_exposure, career_fit, fortress_score?`.
 
-**Goal** — `id, owner_id, title, category, horizon, target_date?, target_value?,
-priority, status`.
+**Objective** *(Queue 01)* — owner-authored canonical intent: `id, owner_id, title,
+description, category_key, direction (attain | avoid | maintain), horizon (short | medium |
+long), target_date?, target_value?, target_currency?, priority, status (draft | active |
+achieved | abandoned | inactive | superseded), authored_by (owner | atlas_proposed),
+accepted_at?, valid_from, valid_to?, effective_tier`. `category_key` is registry/data-driven,
+not a PostgreSQL enum. Atlas-proposed or unaccepted rows are inert (ADR-0011).
+
+**Preference** *(Queue 01)* — temporal pairwise ordinal intent: `id, owner_id,
+higher_objective_id, lower_objective_id, strength (weak | strong), rationale,
+authored_by (owner | atlas_proposed), accepted_at?, status (draft | active | inactive |
+superseded), valid_from, valid_to?, effective_tier`. Active accepted preferences must be
+acyclic at every `as_of`. No utility functions or numeric exchange rates.
 
 **Policy** — `id, owner_id, name, policy_type, parameters_json, severity, enabled,
-created_at`. Evaluation is deterministic (`POLICY` section of `IMPACT_ENGINE.md` and
-Queue 11).
+created_at, objective_id?`. The objective link is implemented with Policy in Queue 11, not
+as an empty Queue 01 table. Evaluation is deterministic (`POLICY` section of
+`IMPACT_ENGINE.md` and Queue 11).
 
 > **Never stored, anywhere:** seed phrases, private keys, withdrawal secrets, banking
 > passwords. See `SECURITY.md`.
 
 ## Interaction entities
 
+### Forecast ledger (Queue 01; no forecasting engine)
+
+V1 questions are binary and objectively resolvable. The ledger stores primitives; Brier
+scores and calibration curves are derived analytics and are not canonical columns.
+
+**ForecastQuestion** — `id, question, domain_key, resolution_criteria, resolve_by,
+created_at, status (open | resolved | cancelled), effective_tier`. Resolution criteria are
+mandatory.
+
+**ForecastPrediction** — immutable append-only prediction: `id, question_id,
+forecaster_type (owner | atlas), probability (0..1), made_at, model_ref?,
+prompt_or_artifact_version_refs[], evidence_refs[], note?, supersedes_prediction_id?,
+effective_tier`. Updating a forecast appends a prediction linked to the row it supersedes.
+
+**ForecastResolution** — one provenance-backed resolution per question: `question_id,
+outcome (true | false), resolved_at, evidence_refs[], resolution_note?, effective_tier`.
+
 **Scenario** — `id, slug, title, horizon, thesis, probability, probability_method,
 status, created_at, updated_at`.
 **ScenarioDriver** — `scenario_id, narrative_id, direction, weight, current_score,
 explanation`.
 
-**Impact** (the central Atlas object) — `id, owner_id, world_delta_id, impact_domain,
-target_id?, direction, severity, urgency, confidence, reversibility,
-estimated_range_json?, causal_chain_json, explanation, generated_at`.
+**Impact** (Queue 09; the central Atlas object) — `id, owner_id, world_delta_id,
+impact_domain, target_id?, direction, severity, urgency, confidence, reversibility,
+estimated_range_json?, typed_causal_chain, objective_refs[], attention_class, explanation,
+generated_at, artifact_version_refs[]`. The attention class is exactly
+`ACTION | VERIFY | REVIEW | BACKGROUND | SUPPRESS` (ADR-0008).
 
 Impact domains: `portfolio, cash, currency, income, career, startup, migration,
 residency, geography, housing, life_fortress, operational_security`.
 
 Impact evidence classes: `DIRECT_CALCULATED, DIRECT_RULE, INFERRED_CAUSAL, SPECULATIVE`.
 
-**Decision** — `id, owner_id, decision_type, created_at, valid_until?, status, title,
-rationale, confidence, related_impacts[], related_scenarios[], policy_context[],
+**Decision** (Queue 12) — `id, owner_id, decision_type, created_at, valid_until?, status,
+title, rationale, confidence, related_impacts[], related_scenarios[], policy_context[],
+considered_options[], objectives_active_at_decision[], artifact_version_refs[],
 human_approved`. V1 decision types are non-executing: `OBSERVE, VERIFY, WAIT, PREPARE,
 REVIEW_ALLOCATION, REVIEW_LOCATION, REVIEW_POLICY, NO_ACTION` (ADR-0003).
 
@@ -128,7 +177,8 @@ forecast_score?, retrospective`. An outcome never mutates its decision.
 
 ## Operational entities
 
-**RunRecord** — one per `run_atlas_cycle` execution: `run_id`, `as_of`, source results,
+**RunRecord** *(Queue 01 foundation; populated fully in Queue 13)* — one per
+`run_atlas_cycle` execution: `run_id`, `as_of`, source results,
 counts of raw items / events / narratives changed, model calls, cost, latency, deltas
 created, alerts emitted, missing critical data, errors. This is what makes a run
 replayable and auditable (blueprint §28).

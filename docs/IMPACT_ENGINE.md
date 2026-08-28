@@ -60,16 +60,23 @@ Every impact is tagged with how it was derived, and the tag is visible to the ow
 
 Fact, inference and speculation must never be presented as the same kind of claim.
 
-## Priority score
+## Priority and attention
 
 A transparent composite, with every component normalised 0..1 and **stored
 individually** so the ranking can be audited:
 
+Priority measures how much an impact matters **if true**. Confidence is deliberately not
+multiplied into priority (ADR-0008): a severe uncertain impact should route to `VERIFY`, not
+disappear from the ranking.
+
 ```
-impact_priority = severity × exposure × confidence × urgency × (1 + irreversibility_weight)
+priority = (severity^ws · exposure^we · urgency^wu)^(1/(ws+we+wu))
+           × (1 + irreversibility)
 ```
 
-No magic model score.
+Attention is a separate deterministic classification shared by impacts, briefs and alerts:
+`ACTION | VERIFY | REVIEW | BACKGROUND | SUPPRESS`. There is no separate alert-severity
+enum and no numeric expected-value-of-interruption model in V1.
 
 ## Policy interaction (Queue 11)
 
@@ -86,3 +93,4 @@ explain a result, never change it.
 - The BTC / TRY / rates / AI / migration fixture set produces the expected impacts.
 - Inferred and calculated impacts are distinguishable in storage and in the UI.
 - Every impact carries a causal chain back to evidence (A05).
+- Every impact uses the single attention taxonomy from ADR-0008.

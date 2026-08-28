@@ -14,4 +14,9 @@ build/
 !.env.example
 node_modules/
 .next/
+
+# Vercel CLI: project linkage (orgId/projectId) and the generated .env.local,
+# which carries a short-lived OIDC token. `.env` and `.env.*` above already
+# cover .env.local; this entry covers the CLI's own directory.
+.vercel/
 *.log

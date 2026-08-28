@@ -7,9 +7,10 @@
 
 `World State × Personal State → Impact → Scenarios → Decisions → Memory`
 
-**Status: Queue 00 complete — repository and architecture freeze.** The application
-boots, the test suite runs, and the architecture boundaries are enforced in CI. No
-feature engines exist yet; see `docs/BUILD_QUEUE.md`.
+**Status: Queue 01 complete — domain types and PostgreSQL persistence foundation.**
+The first schema revision, repositories and sensitivity contracts are exercised against
+PostgreSQL 16 in CI. Queue 02 (the source-adapter contract) is next; no feature engines
+exist yet. See `docs/BUILD_QUEUE.md`.
 
 ## What Atlas is not
 
@@ -26,6 +27,8 @@ make check         # lint, format check, typecheck, tests
 make api           # http://127.0.0.1:8000/health
 make worker        # one worker readiness run
 make db-up         # Postgres 16 + pgvector on :5432
+make migrate       # apply the latest Alembic revision
+make db-test-up    # isolated Postgres 16 test database on :5433
 ```
 
 Requires [uv](https://docs.astral.sh/uv/) and Python 3.12+. Docker is needed only for

@@ -40,9 +40,10 @@ are not points on one line. Authority is `(domain, level, bounds, expiry)`.
 L2 and L3 are **not ordered** — preparation does not require simulation, and either may
 exist without the other. They are distinct capabilities at comparable risk, not rungs.
 
-**Atlas V1 operates at L0–L1 in every domain.** L2 is reachable within V1 (it is pure
-computation and touches nothing external). L3 and above require the Gateway below to
-exist first.
+**Atlas V1 operates at L0–L1 by default.** L2 simulation is permitted in Core within V1:
+it is pure computation and causes no external mutation. L3 preparation requires the
+Execution Gateway contract and boundary; L4–L5 execute only in that Gateway. L6 is
+architecturally unsupported.
 
 ### L6 is architecturally impossible, not merely forbidden
 

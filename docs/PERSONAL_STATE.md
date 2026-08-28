@@ -7,7 +7,8 @@ Personal State has exactly two layers, and their roles are never reversed.
 ## 1. Canonical structured state (authoritative)
 
 PostgreSQL tables for current facts: accounts, cash balances, positions, income
-streams, geography and residency status, goals, policies, critical dates. Every row is
+streams, geography and residency status, accepted Objectives and Preferences, policies,
+critical dates. Every row is
 temporally versioned (`valid_from`/`valid_to`), so a snapshot for any past `as_of` is
 reproducible from point-in-time records.
 
@@ -25,6 +26,10 @@ policy.liquid_runway_months >= 12    geopolitical risk or persistent nervous-sys
 Semantic memory may **never** be the source for portfolio quantities, balances,
 residence status, scenario probabilities, policy thresholds, current location or
 critical dates (ADR-0002).
+
+Owner intent is structured state, not semantic colour. At a requested `as_of`, only
+accepted active Objective and Preference versions whose validity interval contains that
+time are authoritative (ADR-0011). Atlas proposals remain inert until explicit acceptance.
 
 ## Freshness and incompleteness
 
