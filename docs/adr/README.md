@@ -22,6 +22,17 @@ that may change it.**
 | [0003](0003-read-only-v1.md) | Atlas V1 is read-only with respect to external systems | Accepted |
 | [0004](0004-deterministic-compute.md) | Deterministic code computes; LLMs interpret | Accepted |
 | [0005](0005-open-source-boundaries.md) | Upstream projects are consumed at a boundary, never forked | Accepted |
+| [0006](0006-dimensions-as-data.md) | World-state dimensions are data, not code | **Proposed** |
+| [0007](0007-deterministic-idempotency.md) | Deterministic idempotency; semantic similarity proposes, never decides | **Proposed** |
+| [0008](0008-impact-priority-and-attention.md) | Impact priority is a weighted geometric composite; attention is separate | **Proposed** |
+| [0009](0009-probability-integrity.md) | Probability integrity: incompleteness explicit, precision honest | **Proposed** |
+| [0010](0010-data-tiers-and-model-routing.md) | Data sensitivity tiers govern model routing | **Proposed** |
+
+ADRs 0006–0010 resolve contradictions found in Blueprint v1 and are **awaiting owner
+acceptance**. Each blocks a specific queue item — see the table in `../BUILD_QUEUE.md`.
+They are written as decisions rather than options because the blueprint requires a
+proposed ADR, not a discussion, when the architecture is found wanting (§34.10); the
+owner accepts, amends or rejects.
 
 ## Template
 

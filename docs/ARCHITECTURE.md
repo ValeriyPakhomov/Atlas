@@ -167,6 +167,16 @@ Model routing uses three abstract classes — `FAST_MODEL` (extraction, classifi
 `REASON_MODEL` (causal analysis, challenge, synthesis), `WRITE_MODEL` (final prose) —
 kept provider-neutral. Where deterministic code can do the job, it wins outright.
 
+## 8b. Data tiers and model routing
+
+Every value Atlas handles carries a sensitivity tier (L0 public, L1 derived public, L2
+personal structured, L3 sensitive personal), and the tier determines which model class may
+receive it. Enforcement lives in `LLMProviderPort`, not in prompts, so a call site cannot
+opt out. L3 never leaves the owner's perimeter, which is what makes the local-model work
+in `PROGRAM.md` §8 a privacy requirement rather than a cost optimisation.
+
+Specification: `docs/DATA_TIERS.md`. Decision: ADR-0010.
+
 ## 9. Technology baseline
 
 Python 3.12+, FastAPI, Pydantic at boundaries, PostgreSQL 16 + pgvector, Alembic,
@@ -194,4 +204,5 @@ Recorded rather than silently applied.
 2. `docs/DATA_MODEL.md` for the entity vocabulary.
 3. `docs/BUILD_QUEUE.md` for what is built and what is next.
 4. The engine document for the area you are touching.
-5. `docs/SECURITY.md` before any credential, provider or personal-data work.
+5. `docs/SECURITY.md` and `docs/DATA_TIERS.md` before any credential, provider or
+   personal-data work.

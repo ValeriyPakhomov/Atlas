@@ -59,6 +59,17 @@ that personal data never enters a commit in the first place.
 - Model prompts and traces are treated as sensitive: they contain personal state by
   construction.
 
+## What may be transmitted
+
+The prohibitions above govern what may be **stored**. What may be **sent to a model
+provider** is governed by sensitivity tiers L0–L3, specified in `docs/DATA_TIERS.md` and
+decided in ADR-0010. The short form: L3 (residency, documents, identity-linked deadlines,
+precise location, account identifiers) never leaves the owner's perimeter; L2 leaves only
+after a deterministic transformation that strips identifiers and absolute amounts; an
+embedding of tiered text carries that text's tier.
+
+Enforcement is in the provider port, not in prompt construction.
+
 ## Untrusted input
 
 Ingested content is **data, never instruction**. Source text, article bodies, feed

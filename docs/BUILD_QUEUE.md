@@ -44,13 +44,32 @@ CI baseline; lint/typecheck/test commands; boundary and determinism guards;
 - unit-test suite runs (`make test`);
 - architecture boundaries documented **and enforced in CI**.
 
+## Proposed ADRs blocking queue items
+
+Five architectural questions were found unresolved or self-contradictory in Blueprint v1.
+Each is written up as a proposed ADR and needs owner acceptance before the queue item it
+blocks can start, because each changes a schema or a chokepoint that is expensive to
+retrofit.
+
+| ADR | Question it settles | Blocks |
+| --- | --- | --- |
+| [0010](adr/0010-data-tiers-and-model-routing.md) | What may be sent to which model | **Queue 04** and every LLM call after it |
+| [0007](adr/0007-deterministic-idempotency.md) | Whether embeddings may decide deduplication | **Queue 03** |
+| [0006](adr/0006-dimensions-as-data.md) | Whether dimension keys are data or a hard-coded enum | **Queue 06** |
+| [0008](adr/0008-impact-priority-and-attention.md) | How impacts are ranked, and where confidence enters | **Queue 09** |
+| [0009](adr/0009-probability-integrity.md) | What an unassessable scenario does to a probability set | **Queue 10** |
+
+Queue 01 and 02 are **not** blocked and can start immediately. The one operational
+decision they need is the managed Postgres provider.
+
 ## Queue 01 — Domain types + persistence foundation (next)
 
 Implement core IDs, timestamp conventions, `Source`, `RawItem`, `Evidence`, `Event`,
 `Narrative`, `RunRecord`, plus Alembic and repositories.
 
 **Acceptance:** migrations apply from zero; the domain package has no network or
-framework imports; CRUD/repository tests green.
+framework imports; CRUD/repository tests green; **every persisted field declares a
+sensitivity tier** (ADR-0010) — an untiered field fails the build.
 
 ## Remaining acceptance criteria
 
