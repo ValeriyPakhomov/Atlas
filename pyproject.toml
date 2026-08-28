@@ -1,0 +1,64 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "atlas"
+version = "0.0.0"
+description = "Atlas — persistent, evidence-backed personal intelligence system (read-only V1)."
+requires-python = ">=3.12"
+license = { text = "UNLICENSED" }
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.32",
+  "pydantic>=2.9",
+  "pydantic-settings>=2.6",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3",
+  "httpx>=0.27",
+  "ruff>=0.7",
+  "mypy>=1.13",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [
+  "packages/atlas",
+  "apps/api/atlas_api",
+  "apps/worker/atlas_worker",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["packages", "apps/api", "apps/worker", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "ANN", "RUF"]
+ignore = ["ANN401"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["ANN"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_configs = true
+mypy_path = "packages:apps/api:apps/worker"
+namespace_packages = true
+explicit_package_bases = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+  "replay: historical replay determinism tests",
+  "golden: golden-fixture research tests",
+  "evals: model-quality evaluations (not run in default CI)",
+]
