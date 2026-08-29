@@ -1,6 +1,7 @@
 """Atlas ingestion — the source contract and the first two stages of the funnel.
 
-Reading order: :mod:`~atlas.ingestion.contracts` (what a source is), then
+Reading order: :mod:`~atlas.ingestion.registry` (what Atlas may read), then
+:mod:`~atlas.ingestion.contracts` (what a source is), then
 :mod:`~atlas.ingestion.idempotency` (stage 0, ADR-0007), then
 :mod:`~atlas.ingestion.triage` (stage 1, the exposure gate), then
 :mod:`~atlas.ingestion.pipeline` (the two composed into an auditable record).
@@ -50,6 +51,15 @@ from atlas.ingestion.pipeline import (
     run_gaps,
     to_raw_item,
 )
+from atlas.ingestion.registry import (
+    CATALOGUE,
+    REGISTRY,
+    AccessMode,
+    SourceKind,
+    SourceRegistry,
+    SourceSpec,
+    VerificationStatus,
+)
 from atlas.ingestion.triage import (
     ExposureGate,
     ExposureKind,
@@ -65,6 +75,9 @@ from atlas.ingestion.triage import (
 )
 
 __all__ = [
+    "CATALOGUE",
+    "REGISTRY",
+    "AccessMode",
     "AdapterDescriptor",
     "AdapterError",
     "AdapterFailure",
@@ -94,13 +107,17 @@ __all__ = [
     "SourceAuthenticationError",
     "SourceContractViolation",
     "SourceCursor",
+    "SourceKind",
     "SourceNotPermitted",
     "SourceRateLimited",
+    "SourceRegistry",
+    "SourceSpec",
     "SourceTimeout",
     "SourceUnavailable",
     "TriageDecision",
     "TriageOutcome",
     "TriageStage",
+    "VerificationStatus",
     "canonical_url",
     "collect",
     "content_hash",

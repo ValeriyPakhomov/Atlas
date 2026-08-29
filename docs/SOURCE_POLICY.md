@@ -104,6 +104,9 @@ a bug and an outage must not leave the same record.
 Platform quirks stay inside the adapter. If an upstream API changes, only its adapter
 breaks — the domain model does not.
 
+The concrete list of sources — with access mode, terms and what each is permitted to do —
+is [`SOURCE_CATALOGUE.md`](SOURCE_CATALOGUE.md), backed by `atlas.ingestion.registry`.
+
 V1 adapters: manual submission endpoint, MarketTwits-style feed, FRED/official macro,
 market prices via the OpenBB adapter, crypto market data, general web/news research,
 selected government and legal sources.

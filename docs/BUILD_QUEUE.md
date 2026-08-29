@@ -121,8 +121,10 @@ Not implemented here: semantic near-duplicate proposals and event-level merging 
 gated on ADR-0007 acceptance), any network adapter, and any persistence of raw items —
 `to_raw_item` produces the Queue 01 entity, the repository call belongs to Queue 03.
 
-**Delivered:** `packages/atlas/ingestion/{contracts,idempotency,triage,pipeline}.py` and
-`adapters/{manual,fixture}.py`.
+**Delivered:** `packages/atlas/ingestion/{contracts,idempotency,triage,pipeline}.py`,
+`adapters/{manual,fixture}.py`, and the source catalogue as data
+(`registry.py`, `docs/SOURCE_CATALOGUE.md`) — including the invariant that reporting never
+moves a world-state dimension, whatever its reliability class.
 
 **Acceptance met:**
 
