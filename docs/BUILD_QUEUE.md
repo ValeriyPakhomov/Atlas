@@ -24,7 +24,7 @@ Do not silently change the architecture.
 | 05 | Narrative Engine | Pending |
 | 06 | World State V1 | Pending |
 | 07 | Personal State V1 | Pending |
-| 08 | Deterministic Portfolio Engine | Pending |
+| 08 | Deterministic Portfolio Engine | **Operators done** · wiring waits on Queue 07 |
 | 09 | Impact Engine V1 | Pending |
 | 10 | Scenario Engine V1 | Pending |
 | 11 | Policy Engine | Pending |
@@ -118,6 +118,19 @@ local/CI PostgreSQL 16 infrastructure; temporal authority and provenance queries
 - **07** — the snapshot is reproducible from point-in-time records; stale semantic
   memory cannot alter it.
 - **08** — full unit coverage of critical arithmetic branches; no LLM dependency.
+  **Partially delivered ahead of order, deliberately.** The operator layer is pure
+  functions over typed inputs with no dependency on ingestion or persistence — blueprint
+  §11 says to implement these first, and doing so is what let the Atlas Score be specified
+  against real arithmetic rather than a sketch. What landed:
+  `atlas.domain.money` (exact `Money`, `Currency`, `FxRate`, `RateBook`),
+  `atlas.domain.measurement` (`Measured` — A06 as a type),
+  `atlas.portfolio.holdings` and `atlas.portfolio.operators`
+  (`net_worth`, `liquid_net_worth`, `currency_weights`, `asset_class_weights`,
+  `geography_weights`, `concentration`, `runway_months`, `monthly_cashflow_range`,
+  `scenario_mark_to_market`), and `atlas.scoring` (domain score, overall score, news
+  relevance). Still outstanding for Queue 08: repositories that build `Holding` rows from
+  Queue 07's persisted positions and cash balances, and the exposure resolver that feeds
+  `DimensionExposure`.
 - **09** — the BTC/TRY/rates/AI/migration fixture set produces expected impacts;
   inferred and calculated impacts are distinguishable.
 - **10** — probabilities always valid; one low-quality source cannot cause an extreme
