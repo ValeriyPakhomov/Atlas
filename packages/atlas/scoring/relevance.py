@@ -38,6 +38,11 @@ _RELIABILITY: dict[SourceClass, Decimal] = {
 }
 
 
+def reliability_of(source_class: SourceClass) -> Decimal:
+    """The weight a class carries. One table, used by relevance and by credibility alike."""
+    return _RELIABILITY[source_class]
+
+
 class DiscardReason(StrEnum):
     ALREADY_REPORTED = "already_reported"
     NO_EXPOSURE = "no_exposure"

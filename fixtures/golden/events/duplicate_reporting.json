@@ -1,0 +1,202 @@
+{
+  "as_of": "2026-08-30T09:00:00+00:00",
+  "note": "Synthetic clusters modelled on real reporting patterns. Nothing about the owner appears here, by rule - see fixtures/README.md. Four to start; the suite grows towards the 20-50 that file describes.",
+  "clusters": [
+    {
+      "id": "ecb_rate_hold",
+      "why": "Four outlets, one decision. The canonical title must come from the central bank itself, not from whichever paraphrase arrived first.",
+      "expected": {
+        "events": 1,
+        "canonical_title": "ECB keeps key rates unchanged",
+        "credibility": "1.0000",
+        "evidence": 4,
+        "distinct_sources": 4,
+        "merged_by_proposal": 0
+      },
+      "candidates": [
+        {
+          "event_type": "monetary_policy.rate_decision",
+          "title": "European Central Bank leaves rates on hold",
+          "summary": "The ECB left its three key rates unchanged.",
+          "occurred_at": "2026-08-28T12:15:00+00:00",
+          "primary_entities": ["ECB"],
+          "entities": ["Lagarde"],
+          "geography": ["EU"],
+          "report": {
+            "reported_at": "2026-08-28T12:31:00+00:00",
+            "source_key": "guardian_open",
+            "source_class": "B",
+            "evidence_id": "4c9f2b10-1a3d-4e77-9f21-8b6c0d51aa01"
+          }
+        },
+        {
+          "event_type": "monetary_policy.rate_decision",
+          "title": "ECB keeps key rates unchanged",
+          "summary": "Monetary policy decisions of the Governing Council.",
+          "occurred_at": "2026-08-28T12:15:00+00:00",
+          "primary_entities": ["ECB"],
+          "geography": ["EU"],
+          "report": {
+            "reported_at": "2026-08-28T12:16:00+00:00",
+            "source_key": "ecb_press",
+            "source_class": "A",
+            "evidence_id": "4c9f2b10-1a3d-4e77-9f21-8b6c0d51aa02"
+          }
+        },
+        {
+          "event_type": "monetary_policy.rate_decision",
+          "title": "Euro area rates unchanged again",
+          "occurred_at": "2026-08-28T12:15:00+00:00",
+          "primary_entities": ["ECB"],
+          "sectors": ["banks"],
+          "report": {
+            "reported_at": "2026-08-28T13:02:00+00:00",
+            "source_key": "gdelt",
+            "source_class": "C",
+            "evidence_id": "4c9f2b10-1a3d-4e77-9f21-8b6c0d51aa03"
+          }
+        },
+        {
+          "event_type": "monetary_policy.rate_decision",
+          "title": "ECB HOLDS. no change",
+          "occurred_at": "2026-08-28T12:15:00+00:00",
+          "primary_entities": ["ECB"],
+          "report": {
+            "reported_at": "2026-08-28T12:20:00+00:00",
+            "source_key": "aggregator_channel",
+            "source_class": "D",
+            "evidence_id": "4c9f2b10-1a3d-4e77-9f21-8b6c0d51aa04"
+          }
+        }
+      ]
+    },
+    {
+      "id": "enforcement_across_midnight",
+      "why": "One action, reported either side of midnight UTC. The exact key splits it; the advisory layer must put it back together and leave a proposal behind.",
+      "expected": {
+        "events": 1,
+        "canonical_title": "SEC opens enforcement action",
+        "credibility": "1.0000",
+        "evidence": 2,
+        "distinct_sources": 2,
+        "merged_by_proposal": 1
+      },
+      "candidates": [
+        {
+          "event_type": "regulation.enforcement",
+          "title": "SEC opens enforcement action",
+          "occurred_at": "2026-08-28T23:50:00+00:00",
+          "primary_entities": ["SEC"],
+          "geography": ["US"],
+          "report": {
+            "reported_at": "2026-08-28T23:55:00+00:00",
+            "source_key": "sec_edgar",
+            "source_class": "A",
+            "evidence_id": "4c9f2b10-1a3d-4e77-9f21-8b6c0d51bb01"
+          }
+        },
+        {
+          "event_type": "regulation.enforcement",
+          "title": "US regulator opens action against trading firm",
+          "occurred_at": "2026-08-29T00:10:00+00:00",
+          "primary_entities": ["SEC"],
+          "geography": ["US"],
+          "report": {
+            "reported_at": "2026-08-29T00:22:00+00:00",
+            "source_key": "guardian_open",
+            "source_class": "B",
+            "evidence_id": "4c9f2b10-1a3d-4e77-9f21-8b6c0d51bb02"
+          }
+        }
+      ]
+    },
+    {
+      "id": "same_actor_two_actions",
+      "why": "The same actor doing two different things on one day is two events. Entity overlap must never outvote the event type.",
+      "expected": {
+        "events": 2,
+        "merged_by_proposal": 0
+      },
+      "candidates": [
+        {
+          "event_type": "monetary_policy.rate_decision",
+          "title": "Bank of England holds Bank Rate",
+          "occurred_at": "2026-08-27T11:00:00+00:00",
+          "primary_entities": ["Bank of England"],
+          "geography": ["UK"],
+          "report": {
+            "reported_at": "2026-08-27T11:02:00+00:00",
+            "source_key": "boe_press",
+            "source_class": "A",
+            "evidence_id": "4c9f2b10-1a3d-4e77-9f21-8b6c0d51cc01"
+          }
+        },
+        {
+          "event_type": "governance.appointment",
+          "title": "Bank of England names new deputy governor",
+          "occurred_at": "2026-08-27T15:30:00+00:00",
+          "primary_entities": ["Bank of England"],
+          "geography": ["UK"],
+          "report": {
+            "reported_at": "2026-08-27T15:44:00+00:00",
+            "source_key": "boe_press",
+            "source_class": "A",
+            "evidence_id": "4c9f2b10-1a3d-4e77-9f21-8b6c0d51cc02"
+          }
+        }
+      ]
+    },
+    {
+      "id": "one_source_repeating_itself",
+      "why": "A live blog updating three times is one voice. Repetition must not raise credibility the way an independent second source does.",
+      "expected": {
+        "events": 1,
+        "credibility": "0.8500",
+        "evidence": 3,
+        "distinct_sources": 1,
+        "merged_by_proposal": 0
+      },
+      "candidates": [
+        {
+          "event_type": "markets.earnings",
+          "title": "Chipmaker reports quarterly results",
+          "occurred_at": "2026-08-26T20:05:00+00:00",
+          "primary_entities": ["Nvidia"],
+          "assets": ["NVDA"],
+          "report": {
+            "reported_at": "2026-08-26T20:06:00+00:00",
+            "source_key": "guardian_open",
+            "source_class": "B",
+            "evidence_id": "4c9f2b10-1a3d-4e77-9f21-8b6c0d51dd01"
+          }
+        },
+        {
+          "event_type": "markets.earnings",
+          "title": "Chipmaker results: revenue detail",
+          "occurred_at": "2026-08-26T20:05:00+00:00",
+          "primary_entities": ["Nvidia"],
+          "assets": ["NVDA"],
+          "report": {
+            "reported_at": "2026-08-26T20:31:00+00:00",
+            "source_key": "guardian_open",
+            "source_class": "B",
+            "evidence_id": "4c9f2b10-1a3d-4e77-9f21-8b6c0d51dd02"
+          }
+        },
+        {
+          "event_type": "markets.earnings",
+          "title": "Chipmaker results: guidance added",
+          "occurred_at": "2026-08-26T20:05:00+00:00",
+          "primary_entities": ["Nvidia"],
+          "assets": ["NVDA"],
+          "report": {
+            "reported_at": "2026-08-26T21:15:00+00:00",
+            "source_key": "guardian_open",
+            "source_class": "B",
+            "evidence_id": "4c9f2b10-1a3d-4e77-9f21-8b6c0d51dd03"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -19,8 +19,8 @@ Do not silently change the architecture.
 | 00 | Repository and architecture freeze | **Done** |
 | 01 | Domain types + persistence foundation | **Done** |
 | 02 | Source adapter contract | **Done** |
-| 03 | Event normalization and dedupe | Next |
-| 04 | OpenBB market adapter | Pending |
+| 03 | Event normalization and dedupe | **Done** |
+| 04 | OpenBB market adapter | Next |
 | 05 | Narrative Engine | Pending |
 | 06 | World State V1 | Pending |
 | 07 | Personal State V1 | Pending |
@@ -57,7 +57,7 @@ they control.
 | --- | --- | --- |
 | [0010](adr/0010-data-tiers-and-model-routing.md) — **Accepted** | Sensitivity classification, privacy projection and model routing | **Queue 01** tier infrastructure and every LLM call |
 | [0011](adr/0011-goals-are-owner-authored-state.md) — **Accepted** | Canonical owner intent and temporal authority | **Queue 01** Objective/Preference schema |
-| [0007](adr/0007-deterministic-idempotency.md) | Whether embeddings may decide deduplication | **Queue 03** |
+| [0007](adr/0007-deterministic-idempotency.md) — **Accepted** | Whether embeddings may decide deduplication | **Queue 03** |
 | [0006](adr/0006-dimensions-as-data.md) | Whether dimension keys are data or a hard-coded enum | **Queue 06** |
 | [0008](adr/0008-impact-priority-and-attention.md) | How impacts are ranked, and where confidence enters | **Queue 09** |
 | [0009](adr/0009-probability-integrity.md) | What an unassessable scenario does to a probability set | **Queue 10** |
@@ -143,9 +143,45 @@ moves a world-state dimension, whatever its reliability class.
 - the exposure profile is content-addressed, so every decision names the profile version
   that produced it.
 
+## Queue 03 — Event normalization and dedupe ✅
+
+Implement only:
+
+- canonical event normalisation: folded event types and term sets, the versioned exact
+  dedupe key (type + primary actors + UTC day), and assembly of one `Event` from many
+  accounts;
+- the three deterministic event scores — credibility, novelty, urgency;
+- ADR-0007's event layer: exact merging, rule-based entity/time/topic proposals, and a
+  decision log that replay reads instead of recomputing;
+- golden fixtures for known clusters.
+
+Not implemented here: semantic similarity (Queue 18 — the proposal shape and its
+model-version fields exist, the embedding method does not), persistence of events and
+proposals, and narratives (Queue 05).
+
+**Delivered:** `packages/atlas/events/{scoring,normalization,dedupe}.py`,
+`fixtures/golden/events/duplicate_reporting.json`, unit and golden suites.
+
+**Acceptance met:**
+
+- golden fixtures merge duplicate reporting into a single event — four outlets on one rate
+  decision produce one event whose wording comes from the central bank, not the fastest
+  paraphrase;
+- an action straddling midnight UTC is reassembled by the advisory layer and leaves an
+  auto-accepted proposal recording score, threshold and rule version;
+- the same actor doing two different things on one day stays two events — entity overlap
+  never outvotes the event type;
+- a source repeating itself does not raise credibility, and no volume of class-D agreement
+  reaches the standing of one filing;
+- replay reproduces the graph from stored decisions with a scorer that raises if called;
+- an owner rejection holds against any later scoring, and sub-threshold pairs are
+  remembered rather than re-proposed nightly;
+- re-absorbing an account changes nothing, and reordering the reports changes nothing —
+  including the merged event's identity, which follows the most authoritative account
+  rather than arrival order.
+
 ## Remaining acceptance criteria
 
-- **03** — golden fixtures merge duplicate reporting into a single event.
 - **04** — deterministic normalized snapshots for a small fixture universe; a provider
   failure becomes a typed Atlas error; OpenBB types never leave the adapter.
 - **05** — corroborating events strengthen a narrative; contradiction weakens it;

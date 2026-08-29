@@ -40,8 +40,9 @@ Deduplication layers, in order (blueprint §7.2):
 5. event-level entity/time/topic matching.
 
 Layers 1–3 are deterministic, versioned and authoritative; layers 4–5 only ever *propose*
-a merge (ADR-0007). Layers 1–3 are implemented in `atlas.ingestion.idempotency`; the
-proposal lifecycle lands with Queue 03.
+a merge (ADR-0007). Layers 1–3 are implemented in `atlas.ingestion.idempotency`; layer 5,
+rule-based, in `atlas.events.dedupe`. Layer 4 (semantic similarity) has its proposal shape
+and model-version fields but no embedding method — that lands with Queue 18.
 
 **Scoping.** External ids are matched within their source — provider id spaces are
 private, and two feeds both numbering an item `1` are not the same item. Canonical URL

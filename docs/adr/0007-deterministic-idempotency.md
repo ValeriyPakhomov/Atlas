@@ -1,7 +1,8 @@
 # ADR-0007 — Deterministic idempotency; semantic similarity proposes, never decides
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-28
+- Accepted: 2026-08-29, on the founder's direction to proceed with Queue 03
 - Supersedes / Superseded by: —
 
 ## Context
@@ -83,6 +84,19 @@ Rules:
   in the test, replay the same `as_of`, and assert the event graph is byte-identical.
 - Idempotency tests use the deterministic layers only, with the advisory layer disabled,
   proving the spine stands alone.
+
+### As implemented
+
+- Layers 1–3 (item level): `atlas.ingestion.idempotency`, Queue 02.
+- Layer 5 (event level, rule-based entity/time/topic): `atlas.events.dedupe`, Queue 03.
+  Every evaluated pair leaves a decision, including sub-threshold rejections, so a replay
+  is driven entirely by stored decisions. `test_event_dedupe.py` swaps the scorer for one
+  that raises if called and asserts the replayed graph is identical — the same guarantee
+  the enforcement clause asks of an embedding-model change.
+- Layer 4 (semantic similarity) is **not implemented**. Its proposal shape, model-version
+  fields and validation exist; the embedding method itself lands with Queue 18, and the
+  `MergeMethod.SEMANTIC_SIMILARITY` branch refuses a proposal that cannot name the model
+  that produced it.
 
 ## Alternatives considered
 
