@@ -1,5 +1,115 @@
-"""Atlas ingestion — Source adapters, fetch cursors and normalization (Queue 02-03).
+"""Atlas ingestion — the source contract and the first two stages of the funnel.
 
-No implementation yet — reserved by Queue 00 so ownership and the dependency
-direction are fixed before any feature code lands.
+Reading order: :mod:`~atlas.ingestion.contracts` (what a source is), then
+:mod:`~atlas.ingestion.idempotency` (stage 0, ADR-0007), then
+:mod:`~atlas.ingestion.triage` (stage 1, the exposure gate), then
+:mod:`~atlas.ingestion.pipeline` (the two composed into an auditable record).
+
+Nothing in this package calls a model, writes to a provider, or reads the wall clock.
 """
+
+from atlas.ingestion.contracts import (
+    AdapterDescriptor,
+    AdapterError,
+    AdapterFailure,
+    CursorRegression,
+    FetchBatch,
+    FetchedItem,
+    FetchWindow,
+    MalformedItem,
+    SourceAdapter,
+    SourceAuthenticationError,
+    SourceContractViolation,
+    SourceCursor,
+    SourceNotPermitted,
+    SourceRateLimited,
+    SourceTimeout,
+    SourceUnavailable,
+    collect,
+)
+from atlas.ingestion.idempotency import (
+    DedupeLayer,
+    DedupeStatus,
+    DedupeVerdict,
+    Deduplicator,
+    InMemoryLedger,
+    ItemIdentity,
+    SeenLedger,
+    canonical_url,
+    content_hash,
+    identify,
+    normalise_text,
+)
+from atlas.ingestion.pipeline import (
+    AdmittedItem,
+    DroppedItem,
+    IngestionReport,
+    ingest,
+    raw_item_id,
+    run_counts,
+    run_gaps,
+    to_raw_item,
+)
+from atlas.ingestion.triage import (
+    ExposureGate,
+    ExposureKind,
+    ExposureMatch,
+    ExposureProfile,
+    ExposureTerm,
+    GatePolicy,
+    MatchMode,
+    TriageDecision,
+    TriageOutcome,
+    TriageStage,
+    exposure_score,
+)
+
+__all__ = [
+    "AdapterDescriptor",
+    "AdapterError",
+    "AdapterFailure",
+    "AdmittedItem",
+    "CursorRegression",
+    "DedupeLayer",
+    "DedupeStatus",
+    "DedupeVerdict",
+    "Deduplicator",
+    "DroppedItem",
+    "ExposureGate",
+    "ExposureKind",
+    "ExposureMatch",
+    "ExposureProfile",
+    "ExposureTerm",
+    "FetchBatch",
+    "FetchWindow",
+    "FetchedItem",
+    "GatePolicy",
+    "InMemoryLedger",
+    "IngestionReport",
+    "ItemIdentity",
+    "MalformedItem",
+    "MatchMode",
+    "SeenLedger",
+    "SourceAdapter",
+    "SourceAuthenticationError",
+    "SourceContractViolation",
+    "SourceCursor",
+    "SourceNotPermitted",
+    "SourceRateLimited",
+    "SourceTimeout",
+    "SourceUnavailable",
+    "TriageDecision",
+    "TriageOutcome",
+    "TriageStage",
+    "canonical_url",
+    "collect",
+    "content_hash",
+    "exposure_score",
+    "identify",
+    "ingest",
+    "normalise_text",
+    "raw_item_id",
+    "run_counts",
+    "run_gaps",
+    "to_raw_item",
+]

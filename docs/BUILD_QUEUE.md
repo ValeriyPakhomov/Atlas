@@ -18,8 +18,8 @@ Do not silently change the architecture.
 | --- | --- | --- |
 | 00 | Repository and architecture freeze | **Done** |
 | 01 | Domain types + persistence foundation | **Done** |
-| 02 | Source adapter contract | Next |
-| 03 | Event normalization and dedupe | Pending |
+| 02 | Source adapter contract | **Done** |
+| 03 | Event normalization and dedupe | Next |
 | 04 | OpenBB market adapter | Pending |
 | 05 | Narrative Engine | Pending |
 | 06 | World State V1 | Pending |
@@ -105,9 +105,44 @@ local/CI PostgreSQL 16 infrastructure; temporal authority and provenance queries
   follows the effective-tier contract;
 - Queue 00 tests remain green.
 
+## Queue 02 — Source adapter contract ✅
+
+Implement only the contract and the deterministic front of the funnel:
+
+- `SourceAdapter`, `AdapterDescriptor`, `FetchWindow`, `SourceCursor`, `FetchBatch`,
+  `FetchedItem` and the typed adapter-failure taxonomy;
+- ADR-0007's deterministic spine — versioned URL canonicalisation, text normalisation and
+  content hashing, plus the three authoritative dedupe layers;
+- the exposure gate (stage 1 of `docs/COST_MODEL.md` §2) and its triage decisions;
+- the pipeline that composes stages 0 and 1 into an `IngestionReport`;
+- two adapters that need no network: owner submissions and a fixture adapter.
+
+Not implemented here: semantic near-duplicate proposals and event-level merging (Queue 03,
+gated on ADR-0007 acceptance), any network adapter, and any persistence of raw items —
+`to_raw_item` produces the Queue 01 entity, the repository call belongs to Queue 03.
+
+**Delivered:** `packages/atlas/ingestion/{contracts,idempotency,triage,pipeline}.py` and
+`adapters/{manual,fixture}.py`.
+
+**Acceptance met:**
+
+- the same fixture ingested twice produces no duplicates — the second pass admits nothing
+  and every item is reported as already ingested, naming the layer that matched;
+- raw-item ids are `uuid5` of the deterministic identity, so a replay writes the same rows
+  rather than new ones needing reconciliation (A07, A08);
+- external ids are deduplicated per source; canonical URL and content hash globally, so
+  syndicated copy cannot masquerade as corroboration;
+- a failing source produces an explicit incomplete batch with a named gap, never an empty
+  batch that reads as a quiet day (A06); an untyped exception still propagates;
+- a cursor cannot move backwards;
+- gated items are recorded in the ledger, so a rejection is explained once rather than
+  recomputed every cycle;
+- owner-authored items bypass the exposure gate and are classified L3;
+- the exposure profile is content-addressed, so every decision names the profile version
+  that produced it.
+
 ## Remaining acceptance criteria
 
-- **02** — the same fixture ingested twice produces no duplicates.
 - **03** — golden fixtures merge duplicate reporting into a single event.
 - **04** — deterministic normalized snapshots for a small fixture universe; a provider
   failure becomes a typed Atlas error; OpenBB types never leave the adapter.
